@@ -1,0 +1,94 @@
+------------------------
+NOTE: IMAGE DATA FORMATS
+------------------------
+
+* Application supports 2 image formats - JPEG and PNG.
+1) JPEG IO is provided by LibJpegTurbo
+2) PNG IO is provided LibPng
+
+
+* Image readers and writers support 2 modes - chunk IO and immedeate:
+1) Immedeate mode does not create or use internal states while operating.
+   It is provided by using static methods.
+   When reading it opens file, reads whole file into ImageBuffer and closes file.
+   When writing it opens file, writes whole ImageBuffer content into the file and closes it.
+   
+2) Chunk mode is used to make possible processing of the files that are
+   too large to fit in memory at once for processing. (Refer to Chunk Processing note)
+   - Chunk mode utilizes internal state of ImageReader/Writer objects.
+   - Initially when creating IO object file is opened for reading/writing, header read/written,
+   but no actual data is transferred. 
+   - User can consult header information before proceeding.
+   - Essentially IO object holds a promise to write/read a certain file with defined parameters.
+   - IO operations are performed in batches of lines. Number of lines can be arbitrary at each step.
+   - Internal state keeps track of lines read/written and the state of the object.
+   - When IO is done object should be disposed of.
+   - Each separate file requires separate object.
+
+LibJpeg error callbacks explained:
+Callbacks are provided by LibJpegCallbacks object which is a part of reader/writer (inherited).
+There is 2 type of callbacks:
+1) Fatal error - static method is passed to .error_exit field of decompressor object.
+Method is defined in LibJpegCallbacks and recieves decompressor object pointer.
+It reads from decompressor error message produced by libjpeg and throws codec_fatal_exception
+which should be catched by the user.
+2) Warning - optional method.
+User provided callback and arguments (that should contain pointer to the user accessible data structures)
+are wrapped in WarningCallbackData and referenced in .client_data field of the codec object.
+LibJpeg expects to receive a static method to .emit_message field.
+WarningHandler from LibJpegCallbacks is passed. This handler recieves pointer to codec object.
+From codec object user callback is extracted and called by WarningHandler.
+
+
+Class diagram (the same diagram is applicable for the writers):
+
+BASE			ImageReader(Abstract)			CommonImageHeader
+			[Defines reader states 	]		[Basic data like image size,]
+			[Holds file path info  	]o------[bit depth and layout	 	]
+			[Basic rows accounting 	]		[applicable to all images.	]
+			[Virtual method to read	]
+							^
+							|
+							|
+							|
+------------------------------------------
+CONCRETE					|
+							|
+	LibJpegCallbacks		|			JpegReader
+[Holds data and methods	]	|		[Reads jpeg files.			]
+[for error/warning     	]	|_______[ReadJpegFile = immedeate	]
+[handling of LibJpeg.  	]			[Constructor(file_path)+	]
+[Separated into its own	]<----------[ReadNextRows = Chunks.		]
+[class to improve 		]			[Jpeg or common header is	]
+[readability.			]			[available when object is 	]
+			o						[created and the file		]
+			|						[is opened					]
+			|								o
+			|								|
+	WarningCallbackData					JpegHeaderInfo
+[Callback method pointer]			[Header specific to JPEG	]
+[and args pointer in	]			[files.						]
+[one package.			]
+
+
+
+
+
+Diagram of error/warning callbacks for libjpeg:
+
+[ JpegReader ]
+		LibJpegCallbacks
+	┌----->	WarningCallbackData [User provided]
+	|		  ┌	warningCallback()_ptr  <--through jpeg_object.client_data-┐
+	|		  └	warningCallbackArgs_ptr					 			      |
+	|		static ErrorExitHandler(jpeg_object) <---┐ ----------------------throws--> codec_fatal_exception
+	|		static WarningHandler(jpeg_object) <--┐--| --calls------------┘
+	|	jpeg_object					   			  |	 |
+	|		.jerr ----------points to----------------┘ codec calls on fatal errors		
+	|		.emit_message ------points to---------┘ codec calls on warnings   
+	|		.client_data ┐
+	|					 |
+	└--points to---------┘
+	
+
+Diagram of error/warning callbacks for libjpeg:

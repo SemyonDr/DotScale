@@ -1,0 +1,60 @@
+------------------------
+NOTE: TODO LIST
+------------------------
+
+You are fixing JpegWriter starting with the constructor
+
+----------------------------------------------------------------------------
+OVERALL	--------------------------------------------------------------------
+Add Image Chunk processing support
+Where appropriate change NULL to nullptr.
+
+----------------------------------------------------------------------------
+IO	------------------------------------------------------------------------
+	Add image metadata support using exiv2 library
+	You may create PngInfo and JpegInfo objects that combine header and other parts of the file (like PNG chunks) and use it instead of just a header. Maybe is would also hold metadata, maybe it will be combined with metadata under yet another wrapper.
+	
+	PNG Support
+		Add palette support.
+			Palette reading, storing and writing
+			Palette calculating using an algorithm (long term goal just for fun of it)
+		Add PNG unknown chunks handler - just save them inside the header and write back as they were. Now decompressor is set to ignore by calling png_set_keep_unknown_chunks().
+		Add gamma chunks support.
+		Interlaced PNG may not work correctly with chunk reading. Requires investigation.
+		
+	JPEG Support
+		Add gamma support
+
+	Add utf8 paths support
+	Scan IO objects and change NULL to nullptr wherever possible
+
+Progress checklist when working on IO objects:
+
+V PngReader
+	V ReadFile
+	V Constructor
+	V ReadRows
+PngWriter
+	V WriteFile
+	V Constructor
+	V WriteRows
+JpegReader
+	V ReadFile
+	V Constructor
+	V ReadRows
+JpegWriter
+	WriteFile
+	V Constructor
+	V WriteRows
+
+----------------------------------------------------------------------------
+Processing -----------------------------------------------------------------
+	Chunk processing support
+	Jobs
+
+----------------------------------------------------------------------------
+Testers --------------------------------------------------------------------
+	Move test images folder to project directory and set a variable somewhere  which will point to it.
+	Write AddOutDir(dirname) which will add output directory for each test.
+	Source file for the test should be copied to output directory and results should be saved there.
+	Output dir should have number (time) at the end to distinguish it.

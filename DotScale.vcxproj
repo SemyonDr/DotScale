@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{0849857c-67bf-4107-a7e7-f3a898f70b2b}</ProjectGuid>
+    <RootNamespace>DotScale</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Build\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\TMP_$(Platform)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)Build\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\TMP_$(Platform)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)Build\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\TMP_$(Platform)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Build\$(Platform)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Build\TMP_$(Platform)-$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions) TEST_IMAGES_PATH_STR=R"($(SolutionDir)TestImages)"</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>.\Libraries\zlib-1.3_x64-static-md-msvc142-platf10.0.19041.0\debug\zlib.lib;.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\debug\turbojpeg-static.lib;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\debug\libpng16.lib;.\Libraries\tbb_x64-windows\debug\lib\tbb12_debug.lib;.\Libraries\tbb_x64-windows\debug\lib\tbbmalloc_debug.lib;.\Libraries\tbb_x64-windows\debug\lib\tbbmalloc_proxy_debug.lib;.\Libraries\libexpat-2.5.0_x64-static-md-msvc142-platf10.0.19041.0\debug\libexpatd.lib;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\debug\exiv2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy .\Libraries\tbb_x64-windows\debug\bin\tbb12_debug.dll                             .\Build\x64-Debug\tbb12_debug.dll</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions) TEST_IMAGES_PATH_STR=R"($(SolutionDir)TestImages)"</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>.\Libraries\zlib-1.3_x64-static-md-msvc142-platf10.0.19041.0\lib\zlib.lib;.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\lib\turbojpeg-static.lib;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\lib\libpng16.lib;.\Libraries\libexpat-2.5.0_x64-static-md-msvc142-platf10.0.19041.0\lib\libexpat.lib;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\lib\exiv2.lib;.\Libraries\tbb_x64-windows\lib\tbb12.lib;.\Libraries\tbb_x64-windows\lib\tbbmalloc.lib;.\Libraries\tbb_x64-windows\lib\tbbmalloc_proxy.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy .\Libraries\tbb_x64-windows\bin\tbb12.dll                               .\Build\x64-Release\tbb12.dll </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\DotScale.cpp" />
+    <ClCompile Include="Source\Downscaler.cpp" />
+    <ClCompile Include="Source\GammaConverter.cpp" />
+    <ClCompile Include="Source\GammaConverter_PlainGamma.cpp" />
+    <ClCompile Include="Source\GammaConverter_sRGB.cpp" />
+    <ClCompile Include="Source\GammaDispatcher.cpp" />
+    <ClCompile Include="Source\ImageBufferPrinter.cpp" />
+    <ClCompile Include="Source\ImageBuffer_Byte.cpp" />
+    <ClCompile Include="Source\ImageGenerator.cpp" />
+    <ClCompile Include="Source\JpegReader.cpp" />
+    <ClCompile Include="Source\JpegWriter.cpp" />
+    <ClCompile Include="Source\PngReader.cpp" />
+    <ClCompile Include="Source\PngWriter.cpp" />
+    <ClCompile Include="Source\Printer.cpp" />
+    <ClCompile Include="Source\Stopwatch.cpp" />
+    <ClCompile Include="Source\Tester_IO.cpp" />
+    <ClCompile Include="Source\Tester_Base.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\ImageBufferInfo.h" />
+    <ClInclude Include="Source\Downscaler.h" />
+    <ClInclude Include="Source\EnumToString.h" />
+    <ClInclude Include="Source\Exceptions.h" />
+    <ClInclude Include="Source\GammaConverter.h" />
+    <ClInclude Include="Source\GammaConverter_PlainGamma.h" />
+    <ClInclude Include="Source\GammaConverter_sRGB.h" />
+    <ClInclude Include="Source\GammaDispatcher.h" />
+    <ClInclude Include="Source\ImageBuffer.h" />
+    <ClInclude Include="Source\ImageBufferPrinter.h" />
+    <ClInclude Include="Source\ImageBuffer_Base.h" />
+    <ClInclude Include="Source\ImageBuffer_Byte.h" />
+    <ClInclude Include="Source\ImageEnums.h" />
+    <ClInclude Include="Source\ImageFileInfo.h" />
+    <ClInclude Include="Source\ImageGenerator.h" />
+    <ClInclude Include="Source\ImageReader.h" />
+    <ClInclude Include="Source\ImageWriter.h" />
+    <ClInclude Include="Source\JpegHeaderInfo.h" />
+    <ClInclude Include="Source\JpegReader.h" />
+    <ClInclude Include="Source\JpegWriter.h" />
+    <ClInclude Include="Source\LibJpegCallbacks.h" />
+    <ClInclude Include="Source\LibPngCallbacks.h" />
+    <ClInclude Include="Source\PngHeaderInfo.h" />
+    <ClInclude Include="Source\PngReader.h" />
+    <ClInclude Include="Source\PngWriter.h" />
+    <ClInclude Include="Source\Printer.h" />
+    <ClInclude Include="Source\Stopwatch.h" />
+    <ClInclude Include="Source\Tester_IO.h" />
+    <ClInclude Include="Source\Tester_Base.h" />
+    <ClInclude Include="Source\WarningCallbackData.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

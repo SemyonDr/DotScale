@@ -1,0 +1,63 @@
+---------------------------------
+NOTE: PIXEL WEIGHT REPRESENTATION
+---------------------------------
+
+In various algorithms we calculate certain weights for pixels in 0-100% range.
+
+Pixel weights are stored as 32 bit integers [0-65536] and represent a value from 0% to 100% (note that max value cannot be stored with 16 bit)
+To apply a weight w to 16 bit integer b we multiply w*b 
+and store the result in 32 bit variable to avoid overflow
+and perform 16 bit bitshift to least significant side.
+This way we are guaranteed to get 16 bit integer [0-65535] as a result.
+
+In algebraic notiation we perform
+
+	x = w*b/65536
+
+which is equivalent to
+
+	x/b = w/65536 .
+
+
+
+Important NOTE:
+
+We cannot store weight w in only a 16 bit variable 0-65535 
+because if we perform multiplication and a shift we will get
+
+0 <= w/65536 <= 0.999984741
+
+while we have to get 0.0 <= w/65536 <= 1.0 .
+For every brightness 0<=b<=65535 it is true that b*0.999984741 = b-1.
+In other words instead of expected b*100% = b we will get b*100% = b-1 which will degrade
+image content ever so slightly.
+
+To correct for that we might perform actual division by 65535 instead
+of bit shift, but this operation is much much more expensive than a shift.
+
+Therefore we use w spanning the range 0-65536 which should be accomodated in 32 bit integer
+despite beign only 1 value over 16 bit. This should not be a significant problem
+because arrays containing weights are not bigger than image array itself
+and it is faster to elevate only 16 bit brightness value to 32 bit.
+
+This effect can be illustrated in base 10. If we have weight w 0-99
+and a brightness b 0-99 if we want to apply weight to brightness
+we basically want following to be true
+
+	x/b = w/99 => x = w*b/99
+
+We can do multiplication and division by 99. But if we have decimal shift
+available that much much faster divides a value by 100 we might be interested 
+in performing
+
+	x = w*b/100
+
+which will be translated to
+
+	x/b = w/100 .
+
+If we want max value of w to be able to represent 100% it should be 100. 
+But if we want also to keep it to be able to represent 0 we want w 
+to be between 0 and 100. The thing is that there is 101 values 
+between 0 and 100 and we have to use third decimal 
+register to represent full range of values for w.

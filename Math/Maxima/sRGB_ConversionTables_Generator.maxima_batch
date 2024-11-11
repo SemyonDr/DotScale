@@ -1,0 +1,139 @@
+MAX_8BIT : 255$
+MAX_16BIT : 65535$
+WIDTH_8BIT : 256$
+WIDTH_16BIT : 65536$
+
+[table_toLinear_8, table_toLinear_16, table_toSRGB_8, table_toSRGB16],
+    
+/* Init result arrays to 0 */
+array(table_toLinear_8, WIDTH_8BIT),
+array(table_toLinear_16, WIDTH_16BIT),
+array(table_toSRGB_8, WIDTH_16BIT),
+array(table_toSRGB_16, WIDTH_16BIT);
+
+
+toLinear_sRGB_8bit(n_srgb_8) := block (
+    [signal, v_linear],
+    
+    signal : n_srgb_8/MAX_8BIT, 
+
+    if signal <= 0.04045 then (
+        v_linear : signal/12.92
+    )
+    else  (
+        v_linear : ((signal + 0.055)/1.055)^2.4
+    ),
+
+    v_linear : v_linear*MAX_16BIT,
+    v_linear : round(v_linear),
+    return(v_linear)
+)$
+
+
+toLinear_sRGB_16bit(n_srgb_16) := block (
+    [signal, v_linear ],
+    
+    signal : n_srgb_16/MAX_16BIT, 
+
+    if signal <= 0.04045 then (
+        v_linear : signal/12.92
+    )
+    else  (
+        v_linear : ((signal + 0.055)/1.055)^2.4
+    ),
+
+    v_linear : v_linear*MAX_16BIT,
+    v_linear : round(v_linear),
+    return(v_linear)
+)$
+
+
+tosRGB_8bit(n_linear_16) := block(
+    [signal, v_srgb],
+    
+    signal : n_linear_16/MAX_16BIT,
+    
+    if signal <= 0.00313080728306768246137391182737 then (
+        v_srgb : signal*12.92
+    )
+    else (
+        v_srgb : signal^(1/2.4)*1.055 - 0.055
+    ),
+    
+    v_srgb : v_srgb*MAX_8BIT,
+    v_srgb : round(v_srgb),
+    return(v_srgb)
+)$
+
+
+tosRGB_16bit(n_linear_16) := block(
+    [signal, v_srgb],
+    
+    signal : n_linear_16/MAX_16BIT,
+    
+    if signal <= 0.00313080728306768246137391182737 then (
+        v_srgb : signal*12.92
+    )
+    else (
+        v_srgb : signal^(1/2.4)*1.055 - 0.055
+    ),
+    
+    v_srgb : v_srgb*MAX_16BIT,
+    v_srgb : round(v_srgb),
+    return(v_srgb)
+)$
+
+
+CalculateConversionTables() := block (
+    for i : 1 thru WIDTH_8BIT do (
+        table_toLinear_8[i] : toLinear_sRGB_8bit(i-1)
+    ),
+
+    for i: 1 thru WIDTH_16BIT do (
+        table_toSRGB_8[i] : tosRGB_8bit(i-1),
+        table_toSRGB_16[i] : tosRGB_16bit(i-1),
+		table_toLinear_16[i] : toLinear_sRGB_16bit(i-1)
+    )
+)$
+
+
+WriteConversionTables() := block (
+    [fname, file_handle, file_handle_2],
+	
+    fname : "table_SRGBtoLinear_8.data",
+    file_handle : openw(fname),
+    printf(file_handle, "~d", table_toLinear_8[1]),
+    for i: 2 thru WIDTH_8BIT do (
+            printf(file_handle, ",~%~d", table_toLinear_8[i])
+    ),
+    fclose(file_handle),
+    
+    fname : "table_SRGBtoLinear_16.data",
+    file_handle : openw(fname),
+    printf(file_handle, "~d", table_toLinear_16[1]),    
+    for i: 2 thru WIDTH_16BIT do (
+            printf(file_handle, ",~%~d", table_toLinear_16[i])        
+    ),
+    fclose(file_handle),
+        
+    fname : "table_LinearToSRGB_8.data",
+    file_handle : openw(fname),
+    printf(file_handle, "~d", table_toSRGB_8[1]),
+    for i: 2 thru WIDTH_16BIT do (
+            printf(file_handle, ",~%~d", table_toSRGB_8[i])        
+    ),
+    fclose(file_handle),
+
+    fname : "table_LinearToSRGB_16.data",
+    file_handle : openw(fname),
+    printf(file_handle, "~d", table_toSRGB_16[1]),
+    for i: 2 thru WIDTH_16BIT do (
+            printf(file_handle, ",~%~d", table_toSRGB_16[i])       
+    ),
+    fclose(file_handle)
+)$
+
+load("operatingsystem")$
+CalculateConversionTables();
+WriteConversionTables();
+

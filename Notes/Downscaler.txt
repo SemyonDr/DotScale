@@ -1,0 +1,48 @@
+------------------------
+NOTE: DOWNSCALER
+------------------------
+
+This class basically takes in image buffer and returns downscaled image buffer.
+
+---------------------------------------------------
+Chunk processing ----------------------------------
+
+Downscaling is performed in chunks:
+-- Downscaler is initialized expecting to process an image with certain parameters (size, layout)
+-- With calls to DownscaleNext() next arbitrary number of lines of source image is passed and in return recieved next chunk of lines of the output image.
+
+---------------------------------------------------
+Algorithm -----------------------------------------
+
+Algorithm for downscaling is the most basic - bit bucketing.
+Every output pixel is an arithmetic average of some amount of input pixels.
+This algorithm while slow allows to avoid ALIASING, which is the whole point of this application.
+
+---------------------------------------------------
+Algorithm Details ---------------------------------
+
+Algorithm is performed in two passes:
+1) Horizontal pass + averaging
+2) Vertical pass + averaging
+Since we basically build accumulated values it does not matter in what order we add and average values.
+
+Every pixel of the downscaled image is mapped to certain square of multiple pixels on original image.
+Size of this mapping square determined by downscaling scale.
+I call this square the Frame.
+Since we do downscaling in two passes on each pass the frame is linear (one dimensional) rather than a square.
+
+Lets look at horizontal pass:
+We need to know for each pixel of the source image to what pixel of output image it will be mapped.
+Since this mapping will repeat for each source row exactly we calculate it once and then refer to it.
+I call this mapping info "destinations".
+
+But there is another detail:
+Because size of the frame is most likely not integer it may cover certain pixels on the frame boundary only partially, splitting them in some proportion into two parts. 
+One part should be mapped to one output pixel with certain proportional weigth and other part with compliment to this weigth is mapped to another output pixel.
+I call this parts left and right.
+Not every pixel is split, but for the sake of greatly simplifying the algorithm we pretend that every pixel has two parts and two weigth for each part.
+Alongside destinations array I calculate "weigths" array.
+If pixel is not actually split both of its parts have the same destionation, and the first part has weigth 100%, and second part 0%.
+
+All in all if we have an image with row width of n pixels I pre-calculate two arrays of length 2n - destinations and weigths.
+

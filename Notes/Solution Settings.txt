@@ -1,0 +1,129 @@
+---------------------------------
+VS SOLUTION SETTINGS
+---------------------------------
+
+--------
+GENERAL:
+--------
+
+All config - All platforms:
+
+Output directories:
+
+Output directory: $(SolutionDir)Build\$(Platform)-$(Configuration)\
+Intermediary dir: $(SolutionDir)Build\TMP_$(Platform)-$(Configuration)\
+
+Tool versions:
+It is important that tool versions match tool versions used to build libraries!
+I have libraries that have been built with:
+	Toolset: v142 (vs2019)
+	WinSDK 10.0.19041.0
+	C++17
+	ISO C17
+
+Everything can and be re-built with newer versions, but not before instruction on building the libas are produced, so...
+	
+--------
+ADVANCED:
+--------
+
+Use Debug Libraries: 
+	Release:
+		Yes
+	Debug: 
+		No
+
+Whole Program Optimization: 
+	Release:
+		Use Link Time Code Generation
+	Debug:
+		No Whole Program Optimization
+		
+--------
+C/C++
+--------
+	--------
+	GENERAL
+	--------
+	
+	Additional include directories:
+		Here should be listed all include directories of libraries used
+	
+	Debug Information Format:
+		Program Database for Edit And Continue (/ZI)
+		
+	--------
+	Optimization
+	--------
+	Optimization:
+		Release:
+			Max Speed O2
+		Debug:
+			Disabled
+		
+This setting make libraries incompatible because it requires some kind of additional artifacts to include them.
+	Whole Program Optimization:
+		NO
+		
+	--------
+	Preprocessor
+	--------
+	Preprocessor Definitions:
+	Release:
+		_WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)
+	Debug:
+		_DEBUG;_CONSOLE;%(PreprocessorDefinitions)
+		
+	--------
+	Code Generation
+	--------
+	
+	Runtime Library:
+		Release:
+			Multi-threaded DLL (/MD)
+		Debug:
+			Multi-threaded Debug DLL (/MDd)
+			
+
+
+--------
+Linker
+--------	
+	
+	Input:
+		Additional dependencies:
+			Here should be listed all relevant .lib files.
+			But be careful to list debug versions for debug configuration!
+			
+			Release:
+				.\Libraries\zlib-1.3_x64-static-md-msvc142-platf10.0.19041.0\lib\zlib.lib
+				.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\lib\turbojpeg-static.lib
+				.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\lib\libpng16.lib
+				.\Libraries\libexpat-2.5.0_x64-static-md-msvc142-platf10.0.19041.0\lib\libexpat.lib
+				.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\lib\exiv2.lib
+				.\Libraries\tbb_x64-windows\lib\tbb12.lib
+				.\Libraries\tbb_x64-windows\lib\tbbmalloc.lib
+				.\Libraries\tbb_x64-windows\lib\tbbmalloc_proxy.lib
+
+			Debug:
+				.\Libraries\zlib-1.3_x64-static-md-msvc142-platf10.0.19041.0\debug\zlib.lib
+				.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\debug\turbojpeg-static.lib
+				.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\debug\libpng16.lib
+				.\Libraries\tbb_x64-windows\debug\lib\tbb12_debug.lib
+				.\Libraries\tbb_x64-windows\debug\lib\tbbmalloc_debug.lib
+				.\Libraries\tbb_x64-windows\debug\lib\tbbmalloc_proxy_debug.lib
+				.\Libraries\libexpat-2.5.0_x64-static-md-msvc142-platf10.0.19041.0\debug\libexpatd.lib
+				.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\debug\exiv2.lib
+			
+			
+--------
+Linker
+--------	
+	Post-Build events:
+		Release x64:
+			copy .\Libraries\tbb_x64-windows\bin\tbb12.dll                               .\Build\x64-Release\tbb12.dll 
+			copy .\Libraries\tbb_x64-windows\bin\tbbmalloc_proxy.dll            .\Build\x64-Release\tbbmalloc_proxy.dll 
+			copy .\Libraries\tbb_x64-windows\bin\tbbmalloc.dll                       .\Build\x64-Release\tbbmalloc.dll
+			
+		Debug x64:
+			

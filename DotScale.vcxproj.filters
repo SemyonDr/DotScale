@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Image">
+      <UniqueIdentifier>{11df8b20-0a31-4cc9-b8e9-b0749f53dc11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImageIO">
+      <UniqueIdentifier>{b59bab53-0f99-4f19-bb85-686143bbca4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{61fa11b5-d7bf-4bfa-8c16-873e86fb5112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GammaConverters">
+      <UniqueIdentifier>{b0ce7fde-7c9c-4269-bba4-8816083f735f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Processing">
+      <UniqueIdentifier>{2c038f59-f9a8-48dd-a3aa-99f4898f12e6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\DotScale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImageBuffer_Byte.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\JpegReader.cpp">
+      <Filter>ImageIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\JpegWriter.cpp">
+      <Filter>ImageIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tester_IO.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Stopwatch.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GammaConverter.cpp">
+      <Filter>GammaConverters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GammaConverter_PlainGamma.cpp">
+      <Filter>GammaConverters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GammaConverter_sRGB.cpp">
+      <Filter>GammaConverters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GammaDispatcher.cpp">
+      <Filter>GammaConverters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImageBufferPrinter.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Printer.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PngReader.cpp">
+      <Filter>ImageIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PngWriter.cpp">
+      <Filter>ImageIO</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tester_Base.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ImageGenerator.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Downscaler.cpp">
+      <Filter>Processing</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\ImageBuffer_Byte.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageBuffer_Base.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageBuffer.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageEnums.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Exceptions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageBufferInfo.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageReader.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageWriter.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\JpegHeaderInfo.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\JpegReader.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\JpegWriter.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LibJpegCallbacks.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WarningCallbackData.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_IO.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Stopwatch.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GammaConverter.h">
+      <Filter>GammaConverters</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GammaConverter_PlainGamma.h">
+      <Filter>GammaConverters</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GammaConverter_sRGB.h">
+      <Filter>GammaConverters</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GammaDispatcher.h">
+      <Filter>GammaConverters</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageFileInfo.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageBufferPrinter.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\EnumToString.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Printer.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PngHeaderInfo.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PngReader.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PngWriter.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\LibPngCallbacks.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_Base.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageGenerator.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Downscaler.h">
+      <Filter>Processing</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

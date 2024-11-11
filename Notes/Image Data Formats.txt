@@ -1,0 +1,74 @@
+------------------------
+NOTE: IMAGE DATA FORMATS
+------------------------
+
+* Container for storing uncompressed image data is called ImageBuffer.
+Buffer provides direct access to pointer to 2 dimensional array
+that contains image data. 
+And also it provides variables for storing accompanying metadata 
+- layout, width and height of the image.
+
+* Access to the array is direct because it is much faster to use in processing.
+Maintaining consistency of the image object is left to the user.
+
+* ImageBuffer supports a state where it does not hold data array at all - it can alloce new array
+or set existing one. If setting existing one it is a responsibility of the user to make sure 
+that buffer parameters are consistent with data.
+
+* Only G, GA, RGB, RGBA layouts are supported. 
+One may threat G layout as general container for two dimensional data.
+
+* Every row array is allocated independently
+
+* ImageBuffer is a templated class - for a concrete class user should provide 4 template parameters:
+1) Data type that stores one color components.
+2) Minimal value for color component that corresponds to black (and transparent for alpha).
+3) Maximum value for color component that corresponds to white (and opaque for alpha).
+4) A pointer to a function that takes 3 color components and averages them to one value.
+
+* Alongside with template are defined 4 concrete template aliases:
+1) ImageBuffer_float
+2) ImageBuffer_uint8
+3) ImageBuffer_uint16
+4) ImageBuffer_uint32
+
+* Main class for storing data internally is ImageBuffer_Byte.
+It is NOT inhereted from other ImageBuffer types. It is a composite
+class that wraps 3 types of templates - uint8,16,32. 
+To destinguish between templates the class provides a field BitDepth.
+Use of this class greatly simplify interfaces of image buffer consumers
+and producers. Reading an image from disc produces this container
+if image is either 8 or 16 bit.
+
+Iheritance Tree:
+
+BASE	     ImageBuffer_Base
+			[ Provides simple   ]
+			[ fields of width,  ]
+			[ height and layout ]
+					^
+					|
+----------------------------------------------
+TEMPLATES			|
+		  ImageBuffer<typename T>
+		[ Allocates T array       ]
+		[ for storing image data. ]
+		[ And provides basic      ]
+		[ functionality]          ]
+		^	        ^			^
+		|	    	|	 		|		
+		|			|			|
+		|			|			|
+ImageBuffer_uint8	|			|
+		|			|			|
+		|	ImageBuffer_uint16	|
+		|			|			|
+		|			|		ImageBuffer_uint32
+		|			|			|
+		|			|  			|
+----------------------------------------------						
+	   \            |           /
+		\			|		   /
+COMPOSITE\			|		  /
+		  \         |        /
+			ImageBuffer_Byte
