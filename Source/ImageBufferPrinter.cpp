@@ -6,19 +6,19 @@
 
 
 /// <summary>
-/// Prints given number of pixels from an image at given position.
+/// Prints given number of pixels from an 8bit image at given position.
 /// </summary>
 /// <param name="px_inLine">How many pixels in printed line.</param>
 /// <param name="image">Image buffer object pointer.</param>
 /// <param name="start_row">From which row to print.</param>
 /// <param name="start_col">Starting column in the row.</param>
 /// <param name="num_px">How many pixels to print.</param>
-void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint8* image, int start_row, int start_col, int num_px) {
+void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint8& image, int start_row, int start_col, int num_px) {
 	//Aliases
-	uint8_t** data = image->GetData();
-	int height = image->GetHeight();
-	int width = image->GetWidth();
-	ImagePixelLayout layout = image->GetLayout();
+	uint8_t** data = image.GetDataPtr();
+	int height = image.GetHeight();
+	int width = image.GetWidth();
+	ImagePixelLayout layout = image.GetLayout();
 
 	PrintPixelsAt_Prompt(num_tabs, height, width, start_row, start_col, num_px);
 	std::cout << tabs(num_tabs + 1) << "Bit depth is 8 bit per pixel color component. " << std::endl;
@@ -28,19 +28,19 @@ void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_
 }
 
 /// <summary>
-/// Prints given number of pixels from an image at given position.
+/// Prints given number of pixels from an 16 bit image at given position.
 /// </summary>
 /// <param name="px_inLine">How many pixels in printed line.</param>
 /// <param name="image">Image buffer object pointer.</param>
 /// <param name="start_row">From which row to print.</param>
 /// <param name="start_col">Starting column in the row.</param>
 /// <param name="num_px">How many pixels to print.</param>
-void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint16* image, int start_row, int start_col, int num_px) {
+void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint16& image, int start_row, int start_col, int num_px) {
 //Aliases
-	uint16_t** data = image->GetData();
-	int height = image->GetHeight();
-	int width = image->GetWidth();
-	ImagePixelLayout layout = image->GetLayout();
+	uint16_t** data = image.GetDataPtr();
+	int height = image.GetHeight();
+	int width = image.GetWidth();
+	ImagePixelLayout layout = image.GetLayout();
 
 	PrintPixelsAt_Prompt(num_tabs, height, width, start_row, start_col, num_px);
 	std::cout << tabs(num_tabs + 1) << "Bit depth is 16 bit per pixel color component. " << std::endl;
@@ -50,19 +50,19 @@ void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_
 }
 
 /// <summary>
-/// Prints given number of pixels from an image at given position.
+/// Prints given number of pixels from an 32bit image at given position.
 /// </summary>
-/// <param name="px_inLine">How many pixels in printed line.</param>
+/// <param name="px_inLine">How many pixels are in printed line.</param>
 /// <param name="image">Image buffer object pointer.</param>
 /// <param name="start_row">From which row to print.</param>
 /// <param name="start_col">Starting column in the row.</param>
 /// <param name="num_px">How many pixels to print.</param>
-void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint32* image, int start_row, int start_col, int num_px) {
+void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint32& image, int start_row, int start_col, int num_px) {
 //Aliases
-	uint32_t** data = image->GetData();
-	int height = image->GetHeight();
-	int width = image->GetWidth();
-	ImagePixelLayout layout = image->GetLayout();
+	uint32_t** data = image.GetDataPtr();
+	int height = image.GetHeight();
+	int width = image.GetWidth();
+	ImagePixelLayout layout = image.GetLayout();
 
 	PrintPixelsAt_Prompt(num_tabs, height, width, start_row, start_col, num_px);
 	std::cout << tabs(num_tabs + 1) << "Bit depth is 32 bit per pixel color component. " << std::endl;
@@ -79,13 +79,13 @@ void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_
 /// <param name="start_row">From which row to print.</param>
 /// <param name="start_col">Starting column in the row.</param>
 /// <param name="num_px">How many pixels to print.</param>
-void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_Byte* image, int start_row, int start_col, int num_px) {
+void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_Byte& image, int start_row, int start_col, int num_px) {
 //Aliases
-	uint8_t** data = image->GetData();
-	int height = image->GetHeight();
-	int width = image->GetWidth();
-	ImagePixelLayout layout = image->GetLayout();
-	BitDepth bit_depth = image->GetBitPerComponent();
+	uint8_t** data = image.GetDataPtr();
+	int height = image.GetHeight();
+	int width = image.GetWidth();
+	ImagePixelLayout layout = image.GetLayout();
+	BitDepth bit_depth = image.GetBitPerComponent();
 
 	PrintPixelsAt_Prompt(num_tabs, height, width, start_row, start_col, num_px);
 	std::cout << tabs(num_tabs + 1) << "Bit depth is " << bit_depth << "bit per pixel color component. " << std::endl;
@@ -112,12 +112,12 @@ void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_
 /// <param name="start_row">From which row to print.</param>
 /// <param name="start_col">Starting column in the row.</param>
 /// <param name="num_px">How many pixels to print.</param>
-void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_float* image, int start_row, int start_col, int num_px) {
+void ImageBufferPrinter::PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_float& image, int start_row, int start_col, int num_px) {
 //Aliases
-	float** data = image->GetData();
-	int height = image->GetHeight();
-	int width = image->GetWidth();
-	ImagePixelLayout layout = image->GetLayout();
+	float** data = image.GetDataPtr();
+	int height = image.GetHeight();
+	int width = image.GetWidth();
+	ImagePixelLayout layout = image.GetLayout();
 
 	PrintPixelsAt_Prompt(num_tabs, height, width, start_row, start_col, num_px);
 	std::cout << tabs(num_tabs + 1) << "Bit depth is 32 bit per pixel color component (floating point). " << std::endl;
@@ -176,7 +176,7 @@ inline std::string ImageBufferPrinter::PrintPixelsAt_ImageLayoutToString(ImagePi
 		case RGB:
 			return "(Red Green Blue)";
 		case RGBA:
-			return "(Red Green Bblue Aalpha)";
+			return "(Red Green Bblue Alpha)";
 		default:
 			return "";
 	}

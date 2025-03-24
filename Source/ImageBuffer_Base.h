@@ -17,32 +17,32 @@ public:
 	///<summary>
 	///Layout of data in each pixel of the image.
 	///</summary>
-	ImagePixelLayout GetLayout() { return _layout; }
+	ImagePixelLayout GetLayout() const { return _layout; }
 
 	///<summary>
 	///Height of an image in pixels.
 	///</summary>
-	int GetHeight() { return _height; }
+	int GetHeight() const { return _height; }
 
 	///<summary>
 	///Width of an image in pixels.
 	///</summary>
-	int GetWidth() { return _width; }
+	int GetWidth() const { return _width; }
 
 	///<summary>
 	///Number of components in the pixel.
 	///</summary>
-	int GetNumCmp() { return _numCmp; }
+	int GetNumCmp() const { return _numCmp; }
 
 	/// <summary>
 	/// Number of individual pixel components in a full row.
 	/// </summary>
-	int GetCmpWidth() { return _numCmp * _width; }
+	int GetCmpWidth() const { return _numCmp * _width; }
 
 	///<summary>
 	///If this image layout has alpha channel.
 	///</summary>
-	bool GetHasAlpha() { return _hasAlpha; }
+	bool GetHasAlpha() const { return _hasAlpha; }
 
 	//--------------------------------
 	//	CONSTRUCTORS
@@ -61,7 +61,8 @@ public:
 
 		switch (_layout) {
 		case UNDEF:
-			throw std::exception("Cannot create RawImage with undefined layout.");
+			_numCmp = 0;
+			_hasAlpha = false;
 			return;
 		case G:
 			_numCmp = 1;

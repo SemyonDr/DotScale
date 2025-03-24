@@ -14,20 +14,20 @@
 ///When all rows are already read returns nullptr.
 ///<para>Can throw codec_fatal_exception if failed to decompress the image.</para>
 ///</summary>
-ImageBuffer_Byte* PngReader::ReadNextRows(int num_rows) {
+ImageBuffer_Byte PngReader::ReadNextRows(int num_rows) {
 
 	//----------------------------------------------------------------------
 	// 1 - Arguments check
 
 	//Simple argument sanity check
 	if (num_rows <= 0)
-		return nullptr;
+		return ImageBuffer_Byte(_image_info.GetHeight(), _image_info.GetWidth(), _image_info.GetLayout(), _image_info.GetBitDepth());
 
 	// Checking reader state -----------------------------------------------
 
-	//If reading has finished we return nothing
+	//If reading has finished we return unallocated image
 	if (_state == ReaderStates::Finished)
-		return nullptr;
+		return ImageBuffer_Byte(_image_info.GetHeight(), _image_info.GetWidth(), _image_info.GetLayout(), _image_info.GetBitDepth());
 
 	//If reader has failed before we throw
 	if (_state == ReaderStates::Failed) {
@@ -51,15 +51,14 @@ ImageBuffer_Byte* PngReader::ReadNextRows(int num_rows) {
 	// 3 - Decompressing the image
 
 	//This object will represent the result of file reading.
-	ImageBuffer_Byte* decompressed_image =
-		new ImageBuffer_Byte(
+	ImageBuffer_Byte decompressed_image(
 			actual_num_rows,
 			_image_info._width,
 			_image_info._layout,
 			_image_info._bit_depth);
 
 	//Image data alias
-	png_bytepp decompressed_data = reinterpret_cast<png_bytepp>(decompressed_image->GetData()); 
+	png_bytepp decompressed_data = reinterpret_cast<png_bytepp>(decompressed_image.GetDataPtr()); 
 
 	//As for writing of this code libpng documentation states
 	//that only two possible interlacement schemes exists for png -
@@ -79,7 +78,7 @@ ImageBuffer_Byte* PngReader::ReadNextRows(int num_rows) {
 			);
 	}
 	catch (codec_fatal_exception e) {
-		delete decompressed_image; //Deleting the uncompressed image object
+		/* delete decompressed_image; //Deleting the uncompressed image object */ //Archived from the times when this method returned a pointer
 		_state = ReaderStates::Failed;
 		CleanUp();
 		throw; //rethrowing
@@ -122,7 +121,7 @@ ImageBuffer_Byte* PngReader::ReadNextRows(int num_rows) {
 ///<param name="headerPtr">Writes info to PNG header located at this pointer. If NULL it is ignored.</param>
 ///<param name="warningCallback">Pointer to function to handle warnings produced by libPng. Can be NULL.</param>
 ///<param name="warningCallbackArgsPtr">Arguments to be given to warning handler function. Can be NULL.</param>
-ImageBuffer_Byte* PngReader::ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr, WarningCallbackData warning_callback_data) {
+ImageBuffer_Byte PngReader::ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr, WarningCallbackData warning_callback_data) {
 	//Creating reader object
 	PngReader reader(file_path, warning_callback_data);
 
@@ -519,7 +518,7 @@ ImageBuffer_Byte* PngReader::ReadPngFile_Archive(std::filesystem::path file_path
 		);
 
 	//Image data alias
-	png_bytepp decompressed_data = static_cast<png_bytepp>(decompressed_image->GetData());
+	png_bytepp decompressed_data = static_cast<png_bytepp>(decompressed_image->GetDataPtr());
 
 	//As for writing of this code libpng documentation states
 	//that only two possible interlacement schemes exists for png -

@@ -81,6 +81,12 @@
     <ClCompile Include="Source\Downscaler.cpp">
       <Filter>Processing</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Tester_DS.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GaussFunction.cpp">
+      <Filter>Processing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ImageBuffer_Byte.h">
@@ -140,9 +146,6 @@
     <ClInclude Include="Source\GammaDispatcher.h">
       <Filter>GammaConverters</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ImageFileInfo.h">
-      <Filter>Debug</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ImageBufferPrinter.h">
       <Filter>Debug</Filter>
     </ClInclude>
@@ -171,6 +174,24 @@
       <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="Source\Downscaler.h">
+      <Filter>Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ImageFileInfo.h">
+      <Filter>ImageIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_Gamma.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_DS.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SliceProcessor.h">
+      <Filter>Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FixedFraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GaussFunction.h">
       <Filter>Processing</Filter>
     </ClInclude>
   </ItemGroup>

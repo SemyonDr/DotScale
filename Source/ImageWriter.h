@@ -63,7 +63,7 @@ public:
 	///Advances NextRow by the height of given image.
 	///If number of lines in the provided image is bigger than number of rows left writes what is possible.
 	///</summary>
-	virtual void WriteNextRows(ImageBuffer_Byte* image) = 0;
+	virtual void WriteNextRows(const ImageBuffer_Byte& image) = 0;
 
 	//--------------------------------
 	//	PUBLIC CONSTRUCTORS

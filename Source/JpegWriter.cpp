@@ -11,11 +11,11 @@
 ///Advances NextRow by the height of given image.
 ///If number of lines in the provided image is bigger than number of rows left writes what is possible.
 ///</summary>
-void JpegWriter::WriteNextRows(ImageBuffer_Byte* image) {
+void JpegWriter::WriteNextRows(const ImageBuffer_Byte& image) {
 	
 	//Aliases
-	int buffer_height = image->GetHeight();
-	int buffer_width = image->GetWidth();
+	int buffer_height = image.GetHeight();
+	int buffer_width = image.GetWidth();
 
 	//----------------------------------------------------------------------
 	// 1 - Arguments check
@@ -40,19 +40,19 @@ void JpegWriter::WriteNextRows(ImageBuffer_Byte* image) {
 
 	// Checking buffer -----------------------------------------------------
 
-	if (image->GetBitPerComponent() != BitDepth::BD_8_BIT) {
+	if (image.GetBitPerComponent() != BitDepth::BD_8_BIT) {
 		CleanUp();
 		throw codec_fatal_exception(CodecExceptions::Jpeg_InitError, "Trying to write image object that is not 8 bit per color component.");
 	}
 
 	//Checking if provided image conforms with this writer settings --------
 
-	if (image->GetLayout() != _image_info._layout) {
+	if (image.GetLayout() != _image_info._layout) {
 		CleanUp();
 		throw codec_fatal_exception(CodecExceptions::Jpeg_EncodingError, "Trying to write image object incompatible with writer object (layout mismatch).");
 	}
 
-	if (image->GetWidth() != _image_info.GetWidth()) {
+	if (image.GetWidth() != _image_info.GetWidth()) {
 		CleanUp();
 		throw codec_fatal_exception(CodecExceptions::Jpeg_EncodingError, "Trying to write image object incompatible with writer object (width mismatch).");
 	}
@@ -80,7 +80,7 @@ void JpegWriter::WriteNextRows(ImageBuffer_Byte* image) {
 		//it is array of rows of type JSAMPARRAY.
 
 		//Image data alias
-		uint8_t** image_data = image->GetData();
+		uint8_t** image_data = image.GetDataPtr();
 		
 		for (int row = 0; row < actual_num_rows; row++) {
 			//Jpeg compressor accepts JSAMPROW. It is unsigned char*
@@ -130,7 +130,7 @@ void JpegWriter::WriteNextRows(ImageBuffer_Byte* image) {
 /// <param name="header">Jpeg header data. Should contain output colorspace.</param>
 /// <param name="quality">Jpeg codec compression quality setting. 1-100</param>
 /// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-void JpegWriter::WriteJPEG(std::filesystem::path file_path, ImageBuffer_Byte* image, JpegHeaderInfo header, int quality, WarningCallbackData warning_callback_data) {
+void JpegWriter::WriteJPEG(std::filesystem::path file_path, const ImageBuffer_Byte& image, JpegHeaderInfo header, int quality, WarningCallbackData warning_callback_data) {
 	JpegWriter writer(file_path, header, quality, warning_callback_data);
 	writer.WriteNextRows(image);
 }
@@ -440,7 +440,7 @@ void JpegWriter::WriteJPEG_Archive(std::filesystem::path file_path, ImageBuffer_
 	jpeg_start_compress(&jpeg_comp, TRUE);
 
 	//Image data alias
-	JSAMPARRAY uncomressed_data = static_cast<JSAMPARRAY>(image->GetData());
+	JSAMPARRAY uncomressed_data = static_cast<JSAMPARRAY>(image->GetDataPtr());
 
 	//Compressing rows and writing them to file
 	try {

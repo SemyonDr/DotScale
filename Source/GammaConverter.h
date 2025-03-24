@@ -37,12 +37,12 @@ public:
 	/// Converts image with linear scale brightness values [0..65535] to gamma-corrected color space.
 	/// Resulting image bit depth is specified in bitDepth argument.
 	/// </summary>
-	ImageBuffer_Byte* ApplyGammaCorrection(ImageBuffer_uint16* linear_image, BitDepth bitDepth);
+	ImageBuffer_Byte ApplyGammaCorrection(const ImageBuffer_uint16& linear_image, BitDepth bitDepth);
 
 	/// <summary>
 	/// Converts image brightness values from gamma-corrected color space to brightness on the linear scale [0..65535].
 	/// </summary>
-	ImageBuffer_uint16* RemoveGammaCorretion(ImageBuffer_Byte* corrected_image);
+	ImageBuffer_uint16 RemoveGammaCorrection(const ImageBuffer_Byte& corrected_image);
 
 protected:
 	//--------------------------------
@@ -50,12 +50,12 @@ protected:
 	//--------------------------------
 
 	//Table index is gamma corrected brightness and the value is corresponding value on linear brightness scale, 16bit
-	uint16_t* _table_toLinear_8bit = NULL;
-	uint16_t* _table_toLinear_16bit = NULL;
+	uint16_t* _table_toLinear_8bit = nullptr;
+	uint16_t* _table_toLinear_16bit = nullptr;
 
 	//Table index is a value on linear brightness scale and value is corresponding gamma corrected value - 8 or 16 bit
-	uint8_t* _table_toGamma_8bit = NULL;
-	uint16_t* _table_toGamma_16bit = NULL;
+	uint8_t* _table_toGamma_8bit = nullptr;
+	uint16_t* _table_toGamma_16bit = nullptr;
 
 
 

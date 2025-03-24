@@ -66,7 +66,7 @@ public:
 	///If num_lines is bigger than number of rows left reads all available rows.
 	///When all rows are already read returns NULL.
 	///</summary>
-	virtual ImageBuffer_Byte* ReadNextRows(int num_lines) = 0;
+	virtual ImageBuffer_Byte ReadNextRows(int num_lines) = 0;
 
 
 	//--------------------------------

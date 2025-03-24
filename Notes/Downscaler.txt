@@ -44,5 +44,4 @@ Not every pixel is split, but for the sake of greatly simplifying the algorithm 
 Alongside destinations array I calculate "weigths" array.
 If pixel is not actually split both of its parts have the same destionation, and the first part has weigth 100%, and second part 0%.
 
-All in all if we have an image with row width of n pixels I pre-calculate two arrays of length 2n - destinations and weigths.
-
+All in all if we have an image with row width of n pixels I pre-calculate two arrays of length 2n - destinations and weigths with two values in each array for each pixel.

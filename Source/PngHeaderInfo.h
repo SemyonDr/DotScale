@@ -4,7 +4,7 @@
 
 
 ///<summary>
-///Data object for storing PNG image file header copy_source.
+///Data object for storing PNG image file header.
 ///</summary>
 class PngHeaderInfo {
 public:
@@ -12,20 +12,23 @@ public:
 	//	GETTERS
 	//--------------------------------
 
-	unsigned int GetHeight() { return _height; }
-	unsigned int GetWidth() { return _width; }
-	unsigned char GetBitDepth() { return _bit_depth; }
-	unsigned char GetPngColorType() { return _png_color_type; }
-	unsigned char GetPngInterlaceType() { return _png_interlace_type; }
+	unsigned int GetHeight() const { return _height; }
+	unsigned int GetWidth() const { return _width; }
+	unsigned char GetBitDepth() const { return _bit_depth; }
+	unsigned char GetPngColorType() const { return _png_color_type; }
+	unsigned char GetPngInterlaceType() const { return _png_interlace_type; }
 
 	//--------------------------------
 	//	CONSTRUCTORS
 	//--------------------------------
 
-	///<summary>
-	///Default constructor.
-	///</summary>
-	PngHeaderInfo() { }
+	/// <summary>
+	/// Default constructor.
+	/// </summary>
+	PngHeaderInfo() {
+	
+	
+	}
 
 	///<summary>
 	///Initializing constructor.
@@ -38,10 +41,14 @@ public:
 		_png_interlace_type = png_interlace_type;
 	}
 
+	//--------------------------------
+	//	COPY/MOVE
+	//--------------------------------
+
 	///<summary>
 	///Copy constructor.
 	///</summary>
-	PngHeaderInfo(PngHeaderInfo& copy_source) {
+	PngHeaderInfo(const PngHeaderInfo& copy_source) {
 		_height = copy_source._height;
 		_width = copy_source._width;
 		_bit_depth = copy_source._bit_depth;
@@ -52,39 +59,44 @@ public:
 	/// <summary>
 	/// Copy assigment
 	/// </summary>
-	PngHeaderInfo& operator=(const PngHeaderInfo& copy_source) {
-		if (this != &copy_source) {
-			_height = copy_source._height;
-			_width = copy_source._width;
-			_bit_depth = copy_source._bit_depth;
-			_png_color_type = copy_source._png_color_type;
-			_png_interlace_type = copy_source._png_interlace_type;
-		}
+	PngHeaderInfo& operator=(const PngHeaderInfo& other) {
+		if (this == &other)
+			return *this;
+
+		_height = other._height;
+		_width = other._width;
+		_bit_depth = other._bit_depth;
+		_png_color_type = other._png_color_type;
+		_png_interlace_type = other._png_interlace_type;
+
 		return *this;
 	}
 
 	///<summary>
 	///Move constructor.
 	///</summary>
-	PngHeaderInfo(PngHeaderInfo&& move_source) noexcept {
-		_height = move_source._height;
-		_width = move_source._width;
-		_bit_depth = move_source._bit_depth;
-		_png_color_type = move_source._png_color_type;
-		_png_interlace_type = move_source._png_interlace_type;
+	PngHeaderInfo(PngHeaderInfo&& other) noexcept {
+		_height = other._height;
+		_width = other._width;
+		_bit_depth = other._bit_depth;
+		_png_color_type = other._png_color_type;
+		_png_interlace_type = other._png_interlace_type;
 	}
 
 	/// <summary>
 	/// Move assigment.
 	/// </summary>
-	/// <param name="move_source"></param>
-	/// <returns></returns>
-	PngHeaderInfo&& operator=(const PngHeaderInfo&& move_source) {
-		_height = move_source._height;
-		_width = move_source._width;
-		_bit_depth = move_source._bit_depth;
-		_png_color_type = move_source._png_color_type;
-		_png_interlace_type = move_source._png_interlace_type;
+	PngHeaderInfo& operator=(PngHeaderInfo&& other) noexcept{
+		if (&other == this)
+			return *this;
+
+		_height = other._height;
+		_width = other._width;
+		_bit_depth = other._bit_depth;
+		_png_color_type = other._png_color_type;
+		_png_interlace_type = other._png_interlace_type;
+
+		return *this;
 	}
 
 private:

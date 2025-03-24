@@ -32,25 +32,30 @@ std::string tabs(int num) {
 /// <summary>
 /// Prints info about image file.
 /// </summary>
-void Printer::PrintImageFileInfo(int num_tabs, ImageFileInfo image_info) {
+void Printer::PrintImageFileInfo(int num_tabs, const ImageFileInfo& image_info) {
 	
-	if (image_info.file_format == FileFormat::FF_UNSUPPORTED) {
+	FileFormat format = image_info.GetFileFormat();
+
+	if (format == FileFormat::FF_UNSUPPORTED) {
 		std::cout << tabs(num_tabs) << "File format is Unsupported." << std::endl;
 		return;
 	}
-	if (image_info.file_format == FileFormat::FF_JPEG) {
+	if (format == FileFormat::FF_JPEG) {
+		ImageBufferInfo buffer_info = image_info.GetImgBufferInfo();
 		std::cout << tabs(num_tabs) << "File format is JPEG." << std::endl;
-		std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << image_info.decompressed_image->GetHeight() << "x" << image_info.decompressed_image->GetWidth() << std::endl;
-		std::cout << tabs(num_tabs) << "Decompressed data layout:\t\t" << EnumToString::LayoutToString(image_info.decompressed_image->GetLayout()) << std::endl;
-		std::cout << tabs(num_tabs) << "JPEG data layout:\t\t" << EnumToString::JpegLayoutToString(image_info.jpeg_header.GetColorSpace()) << std::endl;
-		std::cout << tabs(num_tabs) << "Bit Depth:\t\t" << "8 bit" << std::endl;
+		std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t\t" << buffer_info.GetHeight() << "x" << buffer_info.GetWidth() << std::endl;
+		std::cout << tabs(num_tabs) << "Decompressed data layout:\t" << EnumToString::LayoutToString(buffer_info.GetLayout()) << std::endl;
+		std::cout << tabs(num_tabs) << "JPEG data layout:\t\t" << EnumToString::JpegLayoutToString(image_info.GetJpegHeader().GetColorSpace()) << std::endl;
+		std::cout << tabs(num_tabs) << "Bit Depth:\t\t\t" << "8 bit" << std::endl;
 		return;
 	}
-	if (image_info.file_format == FileFormat::FF_PNG) {
+	if (format == FileFormat::FF_PNG) {
+		ImageBufferInfo buffer_info = image_info.GetImgBufferInfo();
 		std::cout << tabs(num_tabs) << "File format is PNG." << std::endl;
-		std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << image_info.decompressed_image->GetHeight() << "x" << image_info.decompressed_image->GetWidth() << std::endl;
-		std::cout << tabs(num_tabs) << "Decompressed data layout:\t\t" << EnumToString::LayoutToString(image_info.decompressed_image->GetLayout()) << std::endl;
-		std::cout << tabs(num_tabs) << "Bit Depth:\t\t" << EnumToString::BitDepthToString(image_info.decompressed_image->GetBitPerComponent()) << std::endl;
+		std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t\t" << buffer_info.GetHeight() << "x" << buffer_info.GetWidth() << std::endl;
+		std::cout << tabs(num_tabs) << "Decompressed data layout:\t" << EnumToString::LayoutToString(buffer_info.GetLayout()) << std::endl;
+		std::cout << tabs(num_tabs) << "PNG data layout:\t\t" << EnumToString::PngLayoutToString(image_info.GetPngHeader().GetPngColorType()) << std::endl;
+		std::cout << tabs(num_tabs) << "Bit Depth:\t\t\t" << EnumToString::BitDepthToString(buffer_info.GetBitDepth()) << std::endl;
 		return;
 	}
 }
@@ -60,10 +65,10 @@ void Printer::PrintImageFileInfo(int num_tabs, ImageFileInfo image_info) {
 /// </summary>
 /// <param name="num_tabs"></param>
 /// <param name="image"></param>
-void Printer::PrintImageBufferInfo(int num_tabs, ImageBuffer_Byte* image) {
-	std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << image->GetHeight() << "x" << image->GetWidth() << std::endl;
-	std::cout << tabs(num_tabs) << "Data layout:\t\t" << EnumToString::LayoutToString(image->GetLayout()) << std::endl;
-	std::cout << tabs(num_tabs) << "Bit Depth:\t\t" << EnumToString::BitDepthToString(image->GetBitPerComponent()) << std::endl;
+void Printer::PrintImageBufferInfo(int num_tabs, const ImageBuffer_Byte& image) {
+	std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << image.GetHeight() << "x" << image.GetWidth() << std::endl;
+	std::cout << tabs(num_tabs) << "Data layout:\t\t" << EnumToString::LayoutToString(image.GetLayout()) << std::endl;
+	std::cout << tabs(num_tabs) << "Bit Depth:\t\t" << EnumToString::BitDepthToString(image.GetBitPerComponent()) << std::endl;
 }
 
 
@@ -71,7 +76,7 @@ void Printer::PrintImageBufferInfo(int num_tabs, ImageBuffer_Byte* image) {
 /// <summary>
 /// Print contents of a jpeg header.
 /// </summary>
-void Printer::PrintJpegHeader(int num_tabs, JpegHeaderInfo header) {
+void Printer::PrintJpegHeader(int num_tabs, const JpegHeaderInfo& header) {
 	std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << header.GetHeight() << "x" << header.GetWidth() << std::endl;
 	std::cout << tabs(num_tabs) << "JPEG Color Space:\t" << EnumToString::JpegLayoutToString(header.GetColorSpace()) << std::endl;
 	std::cout << tabs(num_tabs) << "Number of components:\t" << header.GetNumComponents() << std::endl;
@@ -83,7 +88,7 @@ void Printer::PrintJpegHeader(int num_tabs, JpegHeaderInfo header) {
 /// <summary>
 /// Prins contents of a png header.
 /// </summary>
-void Printer::PrintPngHeader(int num_tabs, PngHeaderInfo header) {
+void Printer::PrintPngHeader(int num_tabs, const PngHeaderInfo& header) {
 	std::cout << tabs(num_tabs) << "Dimensions [HxW]:\t" << header.GetHeight() << "x" << header.GetWidth() << std::endl;
 	std::cout << tabs(num_tabs) << "PNG File Layout:\t" << EnumToString::PngLayoutToString(header.GetPngColorType()) << std::endl;
 	std::cout << tabs(num_tabs) << "Bit depth:\t\t" << static_cast<int>(header.GetBitDepth()) << " bit per component" << std::endl;
@@ -96,7 +101,7 @@ void Printer::PrintPngHeader(int num_tabs, PngHeaderInfo header) {
 /// <summary>
 /// Prints file path.
 /// </summary>
-void Printer::PrintFilePath(int num_tabs, std::filesystem::path file_path) {
+void Printer::PrintFilePath(int num_tabs, const std::filesystem::path& file_path) {
 	std::cout << tabs(num_tabs) << file_path.string() << std::endl;
 	if (file_path.is_absolute() == false)
 		std::cout << tabs(num_tabs) << std::filesystem::absolute(file_path).string() << std::endl;

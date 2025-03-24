@@ -23,7 +23,7 @@ public:
 	/// <param name="start_row">From which row to print.</param>
 	/// <param name="start_col">Starting column in the row.</param>
 	/// <param name="num_px">How many pixels to print.</param>
-	static void PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint8* image, int start_row, int start_col, int num_px);
+	static void PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint8& image, int start_row, int start_col, int num_px);
 
 	/// <summary>
 	/// Prints given number of pixels from an image at given position.
@@ -33,7 +33,7 @@ public:
 	/// <param name="start_row">From which row to print.</param>
 	/// <param name="start_col">Starting column in the row.</param>
 	/// <param name="num_px">How many pixels to print.</param>
-	static void PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint16* image, int start_row, int start_col, int num_px);
+	static void PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint16& image, int start_row, int start_col, int num_px);
 
 	/// <summary>
 	/// Prints given number of pixels from an image at given position.
@@ -43,7 +43,7 @@ public:
 	/// <param name="start_row">From which row to print.</param>
 	/// <param name="start_col">Starting column in the row.</param>
 	/// <param name="num_px">How many pixels to print.</param>
-	static void PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_uint32* image, int start_row, int start_col, int num_px);
+	static void PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_uint32& image, int start_row, int start_col, int num_px);
 
 	/// <summary>
 	/// Prints given number of pixels from an image at given position.
@@ -53,7 +53,7 @@ public:
 	/// <param name="start_row">From which row to print.</param>
 	/// <param name="start_col">Starting column in the row.</param>
 	/// <param name="num_px">How many pixels to print.</param>
-	static void PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_Byte* image, int start_row, int start_col, int num_px);
+	static void PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_Byte& image, int start_row, int start_col, int num_px);
 
 	/// <summary>
 	/// Prints given number of pixels from an image at given position.
@@ -63,7 +63,7 @@ public:
 	/// <param name="start_row">From which row to print.</param>
 	/// <param name="start_col">Starting column in the row.</param>
 	/// <param name="num_px">How many pixels to print.</param>
-	static void PrintPixelsAt(int num_tabs, int px_inLine, ImageBuffer_float* image, int start_row, int start_col, int num_px);
+	static void PrintPixelsAt(int num_tabs, int px_inLine, const ImageBuffer_float& image, int start_row, int start_col, int num_px);
 
 private:
 	//--------------------------------

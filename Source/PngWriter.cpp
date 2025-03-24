@@ -15,7 +15,7 @@
 /// <param name="image">Image to write.</param>
 /// <param name="header">PNG header data. Should contain valid output colorspace.</param>
 /// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-void PngWriter::WritePng(std::filesystem::path file_path, ImageBuffer_Byte* image, PngHeaderInfo header, WarningCallbackData warning_callback_data) {
+void PngWriter::WritePng(std::filesystem::path file_path, const ImageBuffer_Byte& image, PngHeaderInfo header, WarningCallbackData warning_callback_data) {
 	PngWriter writer(file_path, header, warning_callback_data);
 	writer.WriteNextRows(image);
 }
@@ -27,7 +27,7 @@ void PngWriter::WritePng(std::filesystem::path file_path, ImageBuffer_Byte* imag
 	///Advances NextRow by the height of given image.
 	///If number of lines in the provided image is bigger than number of rows left writes what is possible.
 	///</summary>
-void PngWriter::WriteNextRows(ImageBuffer_Byte* image) {
+void PngWriter::WriteNextRows(const ImageBuffer_Byte& image) {
 
 	//Aliases
 	unsigned int header_bit_depth = _png_header.GetBitDepth();
@@ -35,9 +35,9 @@ void PngWriter::WriteNextRows(ImageBuffer_Byte* image) {
 	unsigned char header_interlacing = _png_header.GetPngInterlaceType();
 	unsigned int header_height = _png_header.GetHeight();
 
-	unsigned int buffer_layout = ImageLayoutToPngLayout(image->GetLayout());
-	unsigned int buffer_bit_depth = ImageBitDepthToPngBitDepth(image->GetBitPerComponent());
-	unsigned int buffer_height = static_cast<unsigned int>(image->GetHeight());
+	unsigned int buffer_layout = ImageLayoutToPngLayout(image.GetLayout());
+	unsigned int buffer_bit_depth = ImageBitDepthToPngBitDepth(image.GetBitPerComponent());
+	unsigned int buffer_height = static_cast<unsigned int>(image.GetHeight());
 
 	//----------------------------------------------------------------------
 	// 1 - Arguments check
@@ -62,10 +62,10 @@ void PngWriter::WriteNextRows(ImageBuffer_Byte* image) {
 
 	// Checking buffer -----------------------------------------------------
 
-	if (image->GetLayout() == ImagePixelLayout::UNDEF)
+	if (image.GetLayout() == ImagePixelLayout::UNDEF)
 		throw codec_fatal_exception(CodecExceptions::Png_InitError, "Cannot write an image with undefined layout.");
 
-	if (image->GetBitPerComponent() == BitDepth::BD_32_BIT)
+	if (image.GetBitPerComponent() == BitDepth::BD_32_BIT)
 		throw codec_fatal_exception(CodecExceptions::Png_InitError, "PNG file does not support bit depth of 32 bit per channel.");
 
 	//Checking if provided image conforms with this writer settings --------
@@ -80,7 +80,7 @@ void PngWriter::WriteNextRows(ImageBuffer_Byte* image) {
 			throw codec_fatal_exception(CodecExceptions::Png_InitError, "Paletted PNG mode only accepts grayscale and grayscale-alpha image buffers as input.");
 	}
 
-	if (image->GetWidth() != _png_header.GetWidth())
+	if (image.GetWidth() != _png_header.GetWidth())
 		throw codec_fatal_exception(CodecExceptions::Png_InitError, "Width mismatch between provided header and provided image.");
 
 	if (header_bit_depth < 8) {
@@ -103,14 +103,14 @@ void PngWriter::WriteNextRows(ImageBuffer_Byte* image) {
 
 	ImageBuffer_Byte* bitcrushed_image = nullptr;
 	if (_is_low_depth_grayscale)
-		bitcrushed_image = CrushBitDepth(image, header_bit_depth);
+		bitcrushed_image = new ImageBuffer_Byte(std::move(CrushBitDepth(image, header_bit_depth)));
 
 	//Data alias for writing
 	png_bytepp image_data;
 	if (_is_low_depth_grayscale)
-		image_data = static_cast<png_bytepp>(bitcrushed_image->GetData());
+		image_data = static_cast<png_bytepp>(bitcrushed_image->GetDataPtr());
 	else
-		image_data = static_cast<png_bytepp>(image->GetData());
+		image_data = static_cast<png_bytepp>(image.GetDataPtr());
 
 	//Appending image buffer rows to the file
 	try {
@@ -338,17 +338,17 @@ PngWriter::PngWriter(std::filesystem::path file_path, PngHeaderInfo header, Warn
 /// </summary>
 /// <param name="image">Input image buffer assumed to be grayscale 8 bit per pixel.</param>
 /// <param name="bit_depth">Desired bit depth. Possible values are 1, 2, 4.</param>
-ImageBuffer_Byte* PngWriter::CrushBitDepth(ImageBuffer_Byte * src_image, int bit_depth) {
+ImageBuffer_Byte PngWriter::CrushBitDepth(const ImageBuffer_Byte& src_image, int bit_depth) {
 	//Aliases
-	int height = src_image->GetHeight();
-	int width = src_image->GetWidth();
+	int height = src_image.GetHeight();
+	int width = src_image.GetWidth();
 
 	//Result buffer
-	ImageBuffer_Byte* trg_image = new ImageBuffer_Byte(height, width, ImagePixelLayout::G, BitDepth::BD_8_BIT);
+	ImageBuffer_Byte trg_image(height, width, ImagePixelLayout::G, BitDepth::BD_8_BIT);
 
 	//Data alias
-	uint8_t** src_data = src_image->GetData();
-	uint8_t** trg_data = trg_image->GetData();
+	uint8_t** src_data = src_image.GetDataPtr();
+	uint8_t** trg_data = trg_image.GetDataPtr();
 
 	int divisor = 1;
 
@@ -670,9 +670,9 @@ void PngWriter::WritePng_Archive(std::filesystem::path file_path, ImageBuffer_By
 
 	//If header is set to less than 8 bit and the layout is grayscale
 	//we have to perform bit crush
-	ImageBuffer_Byte* bitcrushed_image = nullptr;
+	ImageBuffer_Byte bitcrushed_image(1, 1, ImagePixelLayout::G, BitDepth::BD_8_BIT, false);
 	if (bitcrush) {
-		bitcrushed_image = CrushBitDepth(image, header_bit_depth);
+		bitcrushed_image = std::move(CrushBitDepth(*image, header_bit_depth));
 		//This setting tells the compressor that each byte holds bitcrushed value for one grayscale pixel
 		png_set_packing(png_ptr);
 	}
@@ -683,9 +683,9 @@ void PngWriter::WritePng_Archive(std::filesystem::path file_path, ImageBuffer_By
 	//Data alias for writing
 	png_bytepp image_data;
 	if (bitcrush)
-		image_data = static_cast<png_bytepp>(bitcrushed_image->GetData());
+		image_data = static_cast<png_bytepp>(bitcrushed_image.GetDataPtr());
 	else
-		image_data = static_cast<png_bytepp>(image->GetData());
+		image_data = static_cast<png_bytepp>(image->GetDataPtr());
 
 	//Finally, we compress the image in one call
 	try {
@@ -709,10 +709,6 @@ void PngWriter::WritePng_Archive(std::filesystem::path file_path, ImageBuffer_By
 
 	//Closing the file
 	fclose(file_handle);
-
-	//Deallocating bitcrushed image
-	if (bitcrush)
-		delete bitcrushed_image;
 
 	return;
 }

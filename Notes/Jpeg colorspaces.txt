@@ -24,3 +24,15 @@ typedef enum {
   JCS_EXT_ARGB,           /* alpha/red/green/blue */
   JCS_RGB565              /* 5-bit red/6-bit green/5-bit blue */
 } J_COLOR_SPACE;
+
+
+As far as I understand only these color spaces can be actually stored in file.
+Other color spaces are for input.
+But it may be that all these color spaces are stored because JPEG format does not actually define file color space. In any case not everything is supported in viewers.
+  JCS_UNKNOWN,            /* error/unspecified */
+  JCS_GRAYSCALE,          /* monochrome */
+  JCS_RGB,                /* red/green/blue as specified by the RGB_RED,
+                             RGB_GREEN, RGB_BLUE, and RGB_PIXELSIZE macros */
+  JCS_YCbCr,              /* Y/Cb/Cr (also known as YUV) */
+  JCS_CMYK,               /* C/M/Y/K */
+  JCS_YCCK,               /* Y/Cb/Cr/K */

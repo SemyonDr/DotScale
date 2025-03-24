@@ -2,17 +2,31 @@
 NOTE: TODO LIST
 ------------------------
 
-You are fixing JpegWriter starting with the constructor
-
 ----------------------------------------------------------------------------
 OVERALL	--------------------------------------------------------------------
 Add Image Chunk processing support
-Where appropriate change NULL to nullptr.
+
+----------------------------------------------------------------------------
+CURRENT TASK ---------------------------------------------------------------
+
+Fix another layouts in downscaler
+Clean up slice downcaler
+Testers for downscaler
+Change constructor of downscaler not to rely on ImageBufferInfo
+
+----------------------------------------------------------------------------
+CLEANING ---------------------------------------------------------------
+
+make gamma converter dispatcher return reference instead of pointer and add copy/move support to the converter.
+Copy/Move support for downscaler and readers/writers
+Change image readers/writers to inherit from SliceProcessor for their states.
+Change chunk to slice everywhere
+Something is not right with ImageBufferInfo at all... It may be redundant.
 
 ----------------------------------------------------------------------------
 IO	------------------------------------------------------------------------
+
 	Add image metadata support using exiv2 library
-	You may create PngInfo and JpegInfo objects that combine header and other parts of the file (like PNG chunks) and use it instead of just a header. Maybe is would also hold metadata, maybe it will be combined with metadata under yet another wrapper.
 	
 	PNG Support
 		Add palette support.
@@ -22,39 +36,50 @@ IO	------------------------------------------------------------------------
 		Add gamma chunks support.
 		Interlaced PNG may not work correctly with chunk reading. Requires investigation.
 		
+	Make classes PngFileInfo and JpegFileInfo, that will combine headers, metadata and additional information like PNG chunks. In ImageFileInfo replace headers with those objects.
+	
 	JPEG Support
 		Add gamma support
 
 	Add utf8 paths support
 	Scan IO objects and change NULL to nullptr wherever possible
 
-Progress checklist when working on IO objects:
 
-V PngReader
-	V ReadFile
-	V Constructor
-	V ReadRows
-PngWriter
-	V WriteFile
-	V Constructor
-	V WriteRows
-JpegReader
-	V ReadFile
-	V Constructor
-	V ReadRows
-JpegWriter
-	WriteFile
-	V Constructor
-	V WriteRows
+
 
 ----------------------------------------------------------------------------
 Processing -----------------------------------------------------------------
-	Chunk processing support
-	Jobs
+
+Downscaler:
+	Add a logic that runs downscaling without parallelism if the slice is too small.
+	Add a logic that runs downscaling in iterations if scaling factor is too small. You can run averaging twice for rows and columns separately and make minimal scaling factor 1/65536 which is enough for all practical intents.
+
+Jobs:
 
 ----------------------------------------------------------------------------
 Testers --------------------------------------------------------------------
-	Move test images folder to project directory and set a variable somewhere  which will point to it.
-	Write AddOutDir(dirname) which will add output directory for each test.
-	Source file for the test should be copied to output directory and results should be saved there.
-	Output dir should have number (time) at the end to distinguish it.
+	
+	
+	
+	
+----------------------------------------------------------------------------
+CHECKLISTS	----------------------------------------------------------------
+
+-- IO
+
+PngReader
+	ReadFile
+	Constructor
+	ReadRows
+PngWriter
+	WriteFile
+	Constructor
+	WriteRows
+JpegReader
+	ReadFile
+	Constructor
+	ReadRows
+JpegWriter
+	WriteFile
+	Constructor
+	WriteRows

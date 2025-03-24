@@ -82,7 +82,7 @@ Diagram of error/warning callbacks for libjpeg:
 	|		  ┌	warningCallback()_ptr  <--through jpeg_object.client_data-┐
 	|		  └	warningCallbackArgs_ptr					 			      |
 	|		static ErrorExitHandler(jpeg_object) <---┐ ----------------------throws--> codec_fatal_exception
-	|		static WarningHandler(jpeg_object) <--┐--| --calls------------┘
+	|		static WarningHandler(jpeg_object) <--┐--| --calls-->---------┘
 	|	jpeg_object					   			  |	 |
 	|		.jerr ----------points to----------------┘ codec calls on fatal errors		
 	|		.emit_message ------points to---------┘ codec calls on warnings   

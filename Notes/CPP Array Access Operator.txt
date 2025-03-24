@@ -1,0 +1,33 @@
+------------------------
+OVERRIDING INDEX OPERATOR []
+------------------------
+
+You need to define two overloads:
+1) Const
+2) Non-Const
+	
+------------------------
+Const []
+------------------------
+
+Will be called when you use [] operator on const object instance.
+Method itself is defined const to guarantee that the method will not change the object.
+Method returns const reference, so changing underlying data by the object user is also impossible.
+
+const int& operator[](int index) const {
+	if (index < 0 || index >= 10)
+		throw std::out_of_range("Index out of bounds!");
+	return data[index]; 
+}
+
+------------------------
+Non-Const []
+------------------------
+
+Regular method. Can change object itself that defines it, as well as allow the caller to change data reference that is returned.
+
+int& operator[](int index) {
+	if (index < 0 || index >= 10) 
+		throw std::out_of_range("Index out of bounds!");
+	return data[index]; 
+}

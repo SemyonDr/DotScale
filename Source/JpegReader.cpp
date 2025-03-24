@@ -12,14 +12,14 @@
 ///If num_lines is bigger than number of rows left reads all available rows.
 ///When all rows are already read returns NULL.
 ///</summary>
-ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
+ImageBuffer_Byte JpegReader::ReadNextRows(int num_rows) {
 	
 	//----------------------------------------------------------------------
 	// 1 - Arguments check
 
-	//If reading has finished we return nothing
+	//If reading has finished we return unallocated image buffer
 	if (_state == ReaderStates::Finished)
-		return nullptr;
+		return ImageBuffer_Byte(_image_info.GetHeight(), _image_info.GetWidth(), _image_info.GetLayout(), _image_info.GetBitDepth(), false);
 
 	//If reader has failed before we throw
 	if (_state == ReaderStates::Failed) {
@@ -35,7 +35,7 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 
 	//Simple argument sanity check
 	if (num_rows <= 0)
-		return NULL;
+		return ImageBuffer_Byte(_image_info.GetHeight(), _image_info.GetWidth(), _image_info.GetLayout(), _image_info.GetBitDepth(), false);
 
 	//----------------------------------------------------------------------
 	// 2 - Remaining rows calculation
@@ -47,8 +47,7 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 	// 3 - Decompressing the image
 
 	//This object will represent the result of file reading.
-	ImageBuffer_Byte* decompressed_image = 
-		new ImageBuffer_Byte(
+	ImageBuffer_Byte decompressed_image(
 			actual_num_rows,
 			_image_info._width,
 			_image_info._layout,
@@ -57,7 +56,7 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 	//Pointer to the beginning of array of rows where decompressed rows will be stored.
 	//JSAMPARRAY is an array of row pointers, where rows themselves are arrays of uchar. So, basically JSAMPARRAY = unsigned char**.
 	//This pointer is the beginning of ImageBuffer_Byte data array.
-	JSAMPARRAY decompressed_data_array = static_cast<JSAMPARRAY>(decompressed_image->GetData());
+	JSAMPARRAY decompressed_data_array = static_cast<JSAMPARRAY>(decompressed_image.GetDataPtr());
 
 	try {
 		//Aqcuiring decompressed rows.
@@ -71,7 +70,7 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 			);
 	}
 	catch (codec_fatal_exception e) {
-		delete decompressed_image; //Deleting the uncompressed image object
+		/* delete decompressed_image; //Deleting the uncompressed image object */ //Archived from the times when the buffer was returned as a pointer
 		_state = ReaderStates::Failed;
 		CleanUp();
 		throw; //rethrowing
@@ -96,7 +95,7 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 	if (_state == ReaderStates::Ready_Start)
 		_state = ReaderStates::Ready_Continue;
 
-	//Returning decompressed image container
+	//Returning decompressed image object
 	return decompressed_image;
 }
 
@@ -115,11 +114,12 @@ ImageBuffer_Byte* JpegReader::ReadNextRows(int num_rows) {
 ///<param name="headerPtr">Writes info to JPEG header located at this pointer. If NULL it is ignored.</param>
 ///<param name="warningCallback">Pointer to function to handle warnings produced by libJpeg. Can be NULL.</param>
 ///<param name="warningCallbackArgsPtr">Arguments to be given to warning handler function. Can be NULL.</param>
-ImageBuffer_Byte* JpegReader::ReadJpegFile(std::filesystem::path file_path, JpegHeaderInfo* headerPtr, WarningCallbackData warning_callback_data) {
+ImageBuffer_Byte JpegReader::ReadJpegFile(std::filesystem::path file_path, JpegHeaderInfo* headerPtr, WarningCallbackData warning_callback_data) {
 	JpegReader reader(file_path, warning_callback_data);
 	JpegHeaderInfo header = reader.GetJpegHeader();
+
 	//Returning header content to the user
-	if (headerPtr != NULL) {
+	if (headerPtr != nullptr) {
 		headerPtr->_height = header.GetHeight();
 		headerPtr->_width = header.GetWidth();
 		headerPtr->_color_space = header.GetColorSpace();
@@ -412,7 +412,7 @@ ImageBuffer_Byte* JpegReader::ReadJpegFile_Archive(std::filesystem::path file_pa
 	//Pointer to the beginning of array of rows where decompressed rows will be stored.
 	//JSAMPARRAY is an array of row pointers, where rows themselves are arrays of uchar. So, basically JSAMPARRAY = unsigned char**.
 	//This pointer is the beginning of ImageBuffer_Byte data array.
-	JSAMPARRAY decompressed_data_array = static_cast<JSAMPARRAY>(decompressed_image->GetData());
+	JSAMPARRAY decompressed_data_array = static_cast<JSAMPARRAY>(decompressed_image->GetDataPtr());
 
 	try {
 		//Aqcuiring decompressed rows.

@@ -43,7 +43,7 @@ public:
 	///If number of lines in the provided image is bigger than number of rows left writes what is possible.
 	///<para>Can throw codec_fatal_exception if failed to write.</para>
 	///</summary>
-	void WriteNextRows(ImageBuffer_Byte* image) override;
+	void WriteNextRows(const ImageBuffer_Byte& image) override;
 
 
 	//--------------------------------
@@ -67,11 +67,11 @@ public:
 	///<param name="file_path">Path to the output file.</param>
 	///<param name="image">Image to write.</param>
 	///<param name="quality">Jpeg codec compression quality setting. 1-100</param>
-	static void WriteJPEG(std::filesystem::path file_path, ImageBuffer_Byte* image, int quality) {
+	static void WriteJPEG(std::filesystem::path file_path, const ImageBuffer_Byte& image, int quality) {
 		JpegHeaderInfo header_info;
-		header_info._height = image->GetHeight();
-		header_info._width = image->GetWidth();
-		switch (image->GetLayout())
+		header_info._height = image.GetHeight();
+		header_info._width = image.GetWidth();
+		switch (image.GetLayout())
 		{
 		case UNDEF:
 			break;
@@ -109,11 +109,11 @@ public:
 	///<param name="image">Image to write.</param>
 	///<param name="quality">Jpeg codec compression quality setting. 1-100</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static void WriteJPEG(std::filesystem::path file_path, ImageBuffer_Byte* image, int quality, WarningCallbackData warning_callback_data) {
+	static void WriteJPEG(std::filesystem::path file_path, const ImageBuffer_Byte& image, int quality, WarningCallbackData warning_callback_data) {
 		JpegHeaderInfo header_info;
-		header_info._height = image->GetHeight();
-		header_info._width = image->GetWidth();
-		switch (image->GetLayout())
+		header_info._height = image.GetHeight();
+		header_info._width = image.GetWidth();
+		switch (image.GetLayout())
 		{
 		case UNDEF:
 			break;
@@ -151,7 +151,7 @@ public:
 	///<param name="image">Image to write.</param>
 	///<param name="header">Jpeg header data. Should contain output colorspace.</param>
 	///<param name="quality">Jpeg codec compression quality setting. 1-100</param>
-	static void WriteJPEG(std::filesystem::path file_path, ImageBuffer_Byte* image, JpegHeaderInfo header, int quality) {
+	static void WriteJPEG(std::filesystem::path file_path, const ImageBuffer_Byte& image, JpegHeaderInfo header, int quality) {
 		WriteJPEG(file_path, image, header, quality, WarningCallbackData(NULL,NULL));
 	}
 
@@ -166,7 +166,7 @@ public:
 	/// <param name="header">Jpeg header data. Should contain output colorspace.</param>
 	/// <param name="quality">Jpeg codec compression quality setting. 1-100</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static void WriteJPEG(std::filesystem::path file_path, ImageBuffer_Byte* image, JpegHeaderInfo header, int quality, WarningCallbackData warning_callback_data);
+	static void WriteJPEG(std::filesystem::path file_path, const ImageBuffer_Byte& image, JpegHeaderInfo header, int quality, WarningCallbackData warning_callback_data);
 
 
 
