@@ -1,0 +1,179 @@
+------------------------
+COPY AND MOVE
+------------------------
+
+Copy/Move assigments should return *this, ie reference to this.
+Constructors operate on fields of objects that being constructed.
+arg & -- argument is passed as a reference
+arg && -- argument is a rvalue (number in code, text, or return from the function)
+
+------------------------
+COPY CONSTRUCTOR
+------------------------
+
+Called when new object is initialized as a copy of existing one and source object continues to exist:
+
+1) When object is passed to a function by value (copy).
+	void func(MyClass obj);
+	MyClass other_obj();
+	func(other_obj); //Making copy
+2) When object is returned from a function and there is no move defined.
+3) When newly declared object is initialized by another one
+	MyClass obj = other_obj;
+	other_obj.mutate();
+4) When move constructor is not defined it is used instead.
+5) Can be called explicitly by passing object of the same type to a constructor.
+	MyClass obj1(50);
+    MyClass obj2(obj1);
+
+- Does not change the argument.
+- Self assigment is not possible.
+- Recieving object has no data yet.
+
+
+/// <summary>
+/// Copy constructor.
+/// </summary>
+MyClass(const MyClass& other) {
+		
+	// 1) Copy primitive type fields and fields that have copying defined
+	this->a = other.a;
+	this->b = other.b;
+	
+	// 2) Allocate proper data containers and copy data
+	this->data_ptr = new T[];
+	T.copy(this.data_ptr, other.data_ptr);
+	
+	// 3) Set proper object state if needed
+	this.state = is_alright;
+}
+
+------------------------
+COPY ASSIGMENT
+------------------------
+
+Called when to existing object assigned value of another object and another object continues to exist.
+
+1) Plain assigment:
+	MyClass obj();
+	MyClass obj_2();
+	obj = obj_2;
+	obj_2.mutate();
+2) Returning from function to existing object and move not defined.
+
+/// <summary>
+/// Copy assigment.
+/// </summary>
+MyClass& operator=(const MyClass& other) {
+	// 1) Check for self assigment
+	if (&other == this)
+		return *this;
+
+	// 2) Dispose of already allocated data and state
+	delete[] data_ptr;
+	state = undefined;
+	
+	// 3) Copy primitive type fields and fields that have copying defined
+	a = a;
+	b = b;
+	
+	// 4) Allocate proper data containers and copy data
+	data_ptr = new T[];
+	copy(data_ptr, other.data_ptr);
+	
+	// 5) Set proper object state if needed
+	state = defined;
+	
+	// 6) Return reference to this
+	return *this;
+}
+
+------------------------
+MOVE CONSTRUCTOR
+------------------------
+
+Called when new object is constructed as a copy from another one, but source is no longer used.
+Also can be called directly with MyClass reciever = std::move(obj_of_MyClass);
+
+1) When function return to newly declared variable
+	MyClass obj = MyFunc();
+2) Called explicitly to move object from reference to pointer.
+	MyClass obj();
+	MyClass* ptr = new MyClass(std::move(obj));
+3) When source object is no longer used after assigment (compiler likely to call move)
+	MyClass obj = other_obj;
+	delete other_obj;
+
+Move constructors leave source object in expired state (xvalue). To make this state valid for 
+calling destructors programmer must implement some state flags and logic.
+
+/// <summary>
+/// Move constructor.
+/// </summary>
+MyClass(MyClass&& other) {
+	// 1) Copy primitive data fields
+	this->a = other.a;
+	this->b = other.b;
+	
+	// 2) Move movable class members
+	this->obj_a = std::move(other.obj_a);
+	this->obj_b = std::move(other.obj_b);
+
+	// 3) Reassign data pointers
+	this->data_ptr = other.data_ptr;
+	
+	// 4) Set expired state for source object
+	other->state = data_moved_out;
+
+	// 5) Set proper state for the recieving object
+	this->state = cool;
+}
+
+
+------------------------
+MOVE ASSIGMENT
+------------------------
+
+Called when assigment operator is used and recieving object already exists and source object is no longer used after the call.
+
+1) As return from the function
+	MyClass reciver();
+	reciever = MyFunc();
+2) As plain assigment (If compiler can figure that source will not be used)
+	MyClass reciever();
+	MyClass source();
+	reciever = source;
+	delete source;
+
+/// <summary>
+/// Move assigment.
+/// </summary>
+MyClass& operator=(MyClass&& other) {
+	// 1) Check for self assigment
+	if (&other == this)
+		return *this;
+
+	// 2) Dispose of already allocated data and state
+	delete[] this.data_ptr;
+	this.state = undefined;
+	
+	// 3) Copy primitive type fields
+	this->a = a;
+	this->b = b;
+	
+	// 4) Move movable class members
+	this->obj_a = std::move(other.obj_a);
+	this->obj_b = std::move(other.obj_b);
+	
+	// 5) Reassign data pointers
+	this->data_ptr = other.data_ptr;
+	
+	// 6) Set exprired state for source object
+	other.state = data_moved_out;
+	
+	// 7) Set proper object state if needed
+	this->state = nice;
+	
+	// 8) Return reference to this
+	return *this;
+}

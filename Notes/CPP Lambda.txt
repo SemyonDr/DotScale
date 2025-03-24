@@ -1,0 +1,66 @@
+------------------------
+CPP LAMBDA EXPRESSIONS
+------------------------
+
+In addition to explicitly passed arguments functions and code blocks can inherit variables from their enclosing scope.
+This behaviour is simulated in lambdas with captures.
+
+-----------------------
+Declaration:
+
+[Captures](arguments) -> ReturnType {
+	body;
+	ReturnType result;
+	return result;
+};
+
+* Arguments are optional
+* ReturnType is optional
+
+-----------------------
+Lambda captures:
+
+1) Capture by copy:
+	Captures a copy of the variable at the moment lambda is created (not when it is called).
+	Copy that lambda has cannot be modified by default.
+	Lambda should be declared `mutable` for copy to be modifiable.
+	
+	auto lmd = [x]() -> { return x*x; };
+	
+2) Capture by reference:
+	Variable reference is transfered like it would be transfered from enclosing scope to the code block.
+	
+	auto lmb = [&x]() -> { return x*x; };
+	
+3) Default copy capture:
+	Every variable that is accessible in the scope encosing lambda definition and used in the lambda body would be copy captured.
+	
+	auto lmd = [=]() -> { return x*x; };
+	
+4) Default reference capture:
+	Every variable that is accessible in the scope encosing lambda definition and used in the lambda body would be reference captured.
+	
+	auto lmd = [&]() -> { return x*x; };
+	
+5) Mixed:
+	First you define one of two default capture methods and then you can add exclusions that are captured with another method.
+	
+	auto lmb_cp = [=, &x]() -> {return y*x; }; //y is a copy, x is a reference
+	auto lmd_rf = {&, x} () -> {return y*x; }; //y is a reference, x is a copy
+	
+6) `this` capture:
+	`this` capture captures enclosing class members by reference.
+	
+	auto lmd = [this]() { return this.x*this.x; };
+	
+
+
+-----------------------
+Lambda storage:
+
+1) auto
+	Because actual lambda data type is complicated and may not even be expressable you are encouraged to use lambda for variables that store lambdas.
+	
+	auto scale = [x](int y) -> { return x*y; };
+	
+2) std::function

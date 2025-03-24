@@ -3,13 +3,14 @@
 
 //STL
 #include <exception>
+#include <stdexcept>
 //Internal
 #include "ImageBuffer_Base.h"
 
 
 /// <summary>
 /// Object that stores an image as two dimensional array of pixels.
-/// Data is not incapsulated and maintaining consistency is a responsibiliy of the user.
+/// Pixel data is not incapsulated and maintaining consistency is a responsibiliy of the user.
 /// </summary>
 template <typename T, T TMin, T TMax, T (*RGBtoG)(const T, const T, const T)> 
 class ImageBuffer : public ImageBuffer_Base {
@@ -25,10 +26,11 @@ public:
 	///Array of rows of pixel samples that ordered according to image layout.
 	///Do not deallocate.
 	///</summary>
-	T** GetData() { return _data; }
+	T** GetDataPtr() const { return _data; }
 
 	/// <summary>
 	/// Sets data array for this buffer and sets "allocated" flag to true.
+	/// Assumes that data layout and dimensions are correct.
 	/// </summary>
 	/// <param name="data"></param>
 	void SetData(uint8_t** data) {
@@ -40,7 +42,7 @@ public:
 	/// Tells if data for this buffer is allocated.
 	/// </summary>
 	/// <returns></returns>
-	bool IsAllocated() {
+	bool IsAllocated() const {
 		return _allocated;
 	}
 
@@ -54,11 +56,11 @@ public:
 
 	/// <summary>
 	/// If data array was deallocated outside of control of this object
-	/// appropriate flag should be set.
+	/// appropriate flag should be set by calling this method.
 	/// </summary>
 	void SetDeallocated() {
 		_allocated = false;
-		_data = NULL;
+		_data = nullptr;
 	}
 
 	//--------------------------------
@@ -70,6 +72,9 @@ public:
 	/// </summary>
 	void AllocateData() {
 		if (_allocated == false) {
+			if (_layout == ImagePixelLayout::UNDEF)
+				throw new std::runtime_error("Cannot allocate image buffer with undefined layout.");
+
 			//Allocating array for row pointers
 			_data = new T * [_height];
 
@@ -84,23 +89,77 @@ public:
 	}
 
 	/// <summary>
+	/// If data is allocated deallocates it and set data to nullptr.
+	/// </summary>
+	void DeallocateData() {
+		if (_allocated == true) {
+			//Deleting each data row
+			for (int row = 0; row < _height; row++)
+				delete[] _data[row];
+
+			//Deleting array of rows
+			delete[] _data;
+
+			//Setting flags
+			_allocated = false;
+			_data = nullptr;
+		}
+	}
+
+	/// <summary>
+	/// Sets all values to minimum.
+	/// </summary>
+	void SetToZero() {
+		if (_allocated) {
+			int cmp_width = _width * _numCmp;
+			for (int row = 0; row < _height; row++)
+				for (int cmp = 0; cmp < cmp_width; cmp++)
+					_data[row][cmp] = TMin;
+		}
+	}
+
+	/// <summary>
+	/// Makes a copy of this image buffer and returns a pointer on heap.
+	/// </summary>
+	ImageBuffer<T, TMin, TMax, RGBtoG>* Clone() const {
+		ImageBuffer<T, TMin, TMax, RGBtoG>* copy = new ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, _layout, _allocated);
+
+		//Copying data if it is allocated
+		if (_allocated) {
+			T** cpy_data = copy->_data;
+			int cmp_width = this->GetCmpWidth();
+
+			for (int row = 0; row < _height; row++)
+				for (int cmp = 0; cmp < cmp_width; cmp++)
+					cpy_data[row][cmp] = _data[row][cmp];
+		}
+
+		return copy;
+	}
+
+
+	/// <summary>
 	/// Returns a copy of this image with alpha channel removed.
 	/// </summary>
-	ImageBuffer<T, TMin, TMax, RGBtoG>* RemoveAlphaChannel() {
+	ImageBuffer<T, TMin, TMax, RGBtoG> RemoveAlphaChannel() const {
 
 		//For layouts that do not contain alpha channel we return a copy.
-		if (_layout == ImagePixelLayout::G || _layout == ImagePixelLayout::RGB)
-			return new ImageBuffer<T, TMin, TMax, RGBtoG>(*this);
-
-		//If there is no data we return empty image buffer
+		if (_layout == ImagePixelLayout::G || _layout == ImagePixelLayout::RGB) {
+			ImageBuffer<T, TMin, TMax, RGBtoG>* copy_ptr = Clone();
+			ImageBuffer<T, TMin, TMax, RGBtoG> copy_ref = std::move(*copy_ptr);
+			delete copy_ptr;
+			return copy_ref;
+		}
+			
+		//If there is no data we return deallocated image buffer
 		if (_allocated == false) {
 			switch (_layout)
 			{
 				case GA:
-					return new ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::G, false);
+					return ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::G, false);
 
 				case RGBA:
-					return new ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::RGB, false);
+					return ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::RGB, false);
 			}
 		}
 
@@ -109,8 +168,8 @@ public:
 		{
 			case GA: {
 				//Allocating the result
-				ImageBuffer<T, TMin, TMax, RGBtoG>* trg_image = new ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::G);
-				T** trg_data = trg_image->GetData();
+				ImageBuffer<T, TMin, TMax, RGBtoG> trg_image(_height, _width, ImagePixelLayout::G);
+				T** trg_data = trg_image.GetDataPtr();
 
 				//Copying data without alpha channel
 				for (int row = 0; row < _height; row++)
@@ -122,8 +181,8 @@ public:
 
 			case RGBA: {
 				//Allocating the result
-				ImageBuffer<T, TMin, TMax, RGBtoG>* trg_image = new ImageBuffer<T, TMin, TMax, RGBtoG>(_height, _width, ImagePixelLayout::RGB);
-				T** trg_data = trg_image->GetData();
+				ImageBuffer<T, TMin, TMax, RGBtoG> trg_image(_height, _width, ImagePixelLayout::RGB);
+				T** trg_data = trg_image.GetDataPtr();
 
 				//Copying data without alpha channel
 				for (int row = 0; row < _height; row++) {
@@ -148,18 +207,18 @@ public:
 	/// <param name="width">New width.</param>
 	/// <param name="layout">New layout.</param>
 	/// <returns>Transformed image buffer.</returns>
-	ImageBuffer<T, TMin, TMax, RGBtoG>* TransformBuffer(int height, int width, ImagePixelLayout layout) {
+	ImageBuffer<T, TMin, TMax, RGBtoG> TransformBuffer(int height, int width, ImagePixelLayout layout) const {
 
 		//If data is not allocated we return new empty container
 		if (_allocated == false)
-			return new ImageBuffer<T, TMin, TMax, RGBtoG>(height, width, layout, false);
+			return ImageBuffer<T, TMin, TMax, RGBtoG>(height, width, layout, false);
 
 		//Allocating new buffer
-		ImageBuffer<T, TMin, TMax, RGBtoG>* result = new ImageBuffer<T, TMin, TMax, RGBtoG>(height, width, layout);
+		ImageBuffer<T, TMin, TMax, RGBtoG> result(height, width, layout);
 
 		//Aliases
 		T** src_data = this->_data;
-		T** trg_data = result->GetData();
+		T** trg_data = result.GetDataPtr();
 		int src_height = this->_height;
 		int src_width = this->_width;
 		int trg_height = height;
@@ -169,14 +228,14 @@ public:
 		T black = TMin;
 		T opaque = TMax;
 
-		//How many rows of source image will be copied
+		//How many rows of other image will be copied
 		int copy_height = 0;
 		if (src_height <= trg_height)
 			copy_height = src_height;
 		else
 			copy_height = trg_height;
 
-		//How many columns of source image will be copied
+		//How many columns of other image will be copied
 		int copy_width = 0;
 		if (src_width <= trg_width)
 			copy_width = src_width;
@@ -208,7 +267,7 @@ public:
 
 					case ImagePixelLayout::GA: {
 						//G -> GA
-						//Adding alpha channel set to 255
+						//Adding alpha channel set to opaque
 						for (int row = 0; row < copy_height; row++) {
 							for (int px = 0; px < copy_width; px++) {
 								trg_data[row][px * 2 + 0] = src_data[row][px];
@@ -291,7 +350,7 @@ public:
 					}
 
 				} //Target switch
-			}//Case source grayscale
+			}//Case other grayscale
 
 			case ImagePixelLayout::GA: {
 				switch (trg_layout) {
@@ -398,7 +457,7 @@ public:
 					}
 
 				}//Target switch
-			}//Case source gray alpha
+			}//Case other gray alpha
 
 			case ImagePixelLayout::RGB: {
 				switch (trg_layout) {
@@ -507,7 +566,7 @@ public:
 					}
 
 				}//Target switch
-			}//Case source RGB
+			}//Case other RGB
 
 			case ImagePixelLayout::RGBA: {
 				switch (trg_layout) {
@@ -617,7 +676,7 @@ public:
 					}
 
 				}//Switch target
-			}//Case source RGBA
+			}//Case other RGBA
 
 		}
 
@@ -630,7 +689,7 @@ public:
 	/// </summary>
 	/// <param name="image"></param>
 	/// <param name="line"></param>
-	void InsertAtLine(ImageBuffer<T, TMin, TMax, RGBtoG>* image, int line) {
+	void InsertAtLine(const ImageBuffer<T, TMin, TMax, RGBtoG>& image, int line) {
 		//Just a sanity check
 		if (line < 0)
 			return;
@@ -640,11 +699,11 @@ public:
 			AllocateData();
 
 		//We create a new image that conforms to width and layout of this image
-		ImageBuffer<T, TMin, TMax, RGBtoG>* trans_img = image->TransformBuffer(image->GetHeight(), this->_width, this->_layout);
+		ImageBuffer<T, TMin, TMax, RGBtoG> trans_img = image.TransformBuffer(image.GetHeight(), this->_width, this->_layout);
 
 		//Aliases
-		T** img_data = trans_img->GetData();
-		int img_height = trans_img->GetHeight();
+		T** img_data = trans_img.GetDataPtr();
+		int img_height = trans_img.GetHeight();
 		int new_height = _height + img_height;
 
 		//We check if there are new empty lines between this image and inserted one
@@ -693,10 +752,9 @@ public:
 			}
 		}
 
-		//Disposing of img data array without deallocating individual rows (they were moved) and deleting temporary object
+		//Disposing of img data array without deallocating individual rows (they were moved)
 		delete[] img_data;
-		trans_img->SetDeallocated();
-		trans_img->~ImageBuffer();
+		trans_img.SetDeallocated();
 
 		//Setting new height
 		_height = new_height;
@@ -713,7 +771,7 @@ public:
 	/// If widths mismatch columns will be trimmed/expanded with black fill.
 	/// </summary>
 	/// <param name="image">Image to prepend.</param>
-	void Prepend(ImageBuffer<T, TMin, TMax, RGBtoG>* image) {
+	void Prepend(const ImageBuffer<T, TMin, TMax, RGBtoG>& image) {
 		InsertAtLine(image, 0);
 	}
 
@@ -722,19 +780,46 @@ public:
 	/// If widths mismatch columns will be trimmed/expanded with black fill.
 	/// </summary>
 	/// <param name="image">Image to append.</param>
-	void Append(ImageBuffer<T, TMin, TMax, RGBtoG>* image) {
+	void Append(const ImageBuffer<T, TMin, TMax, RGBtoG>& image) {
 		InsertAtLine(image, _height);
 	}
 
+	/// <summary>
+	/// Returns Image Buffer that contains `height` rows of this buffer, strating with `pos` row.
+	/// </summary>
+	ImageBuffer<T, TMin, TMax, RGBtoG> GetSlice(int pos, int height) {
+		// Actual number of rows to return
+		uint32_t trg_height = height;
+		if (pos >= _height)
+			height = 0;
+		if (pos + height > _height)
+			height = _height - pos;
+
+		// Result
+		ImageBuffer<T, TMin, TMax, RGBtoG> trg_image(trg_height, _width, _layout, _allocated);
+
+		// If result is empty returning immedeately
+		if (_allocated == false || height == 0)
+			return trg_image;
+	
+		// Copying
+		for (uint32_t src_row = pos; src_row < pos+ trg_height; src_row++)
+			for (uint32_t cmp = 0; cmp < trg_image.GetCmpWidth(); cmp++)
+				trg_image[src_row - pos][cmp] = _data[src_row][cmp];
+			
+		return trg_image;
+	}
 
 	//--------------------------------
 	//	CONSTRUCTORS
 	//--------------------------------
 
 	/// <summary>
-	///Default constructor is disabled.
+	///Default constructor creates empty unallocated image.
 	/// </summary>
-	ImageBuffer() = delete;
+	ImageBuffer() : ImageBuffer_Base(0, 0, ImagePixelLayout::UNDEF) {
+
+	}
 
 	///<summary>
 	///Creates empty image with given dimensions and layout.
@@ -747,7 +832,7 @@ public:
 	}
 
 	///<summary>
-	///Creates empty image with given dimensions and layout.
+	///Creates empty image with given dimensions and layout. Allocates data
 	///Each row is allocated individually.
 	///Image content is not set and cannot be assumed.
 	///</summary>
@@ -756,14 +841,136 @@ public:
 
 	}
 
+	//--------------------------------
+	//	COPY/MOVE
+	//--------------------------------
+
+	///<summary>
+	///Copy constructor is disabled to prevent accidential copying.
+	///.Clone() method should be used.
+	///</summary>
+	ImageBuffer(const ImageBuffer<T, TMin, TMax, RGBtoG>& other) = delete;
+
+	/// <summary>
+	/// Copy assigment is disabled to prevent accidential copying.
+	/// .Clone() method should be used.
+	/// </summary>
+	ImageBuffer<T, TMin, TMax, RGBtoG>& operator=(ImageBuffer<T, TMin, TMax, RGBtoG>& other) = delete;
+
+	///<summary>
+	///Move constructor.
+	///</summary>
+	ImageBuffer(ImageBuffer<T, TMin, TMax, RGBtoG>&& other)
+		: ImageBuffer_Base(other._height, other._width, other._layout) {
+
+		//Reassigning data
+		_allocated = other._allocated;
+
+		if (_allocated)
+			_data = other._data;
+		else
+			_data = nullptr;
+
+		//Setting allocation flags, so other object can be safely disposed.
+		other._allocated = false;
+		other._data = nullptr;
+	}
+
+	/// <summary>
+	/// Move assigment.
+	/// </summary>
+	ImageBuffer<T, TMin, TMax, RGBtoG>& operator=(ImageBuffer<T, TMin, TMax, RGBtoG>&& other) {
+		//Self assigment check
+		if (&other == this)
+			return *this;
+
+		//Deleting existing data if present (sets flag)
+		DeallocateData();
+
+		//ImageBuffer_Base fields
+		_layout = other._layout;
+		_height = other._height;
+		_width = other._width;
+		_numCmp = other._numCmp;
+		_hasAlpha = other._hasAlpha;
+
+		//Reassigning data
+		_allocated = other._allocated;
+
+		if (_allocated)
+			_data = other._data;
+		else
+			_data = nullptr;
+
+		//Setting allocation flags for other object, so it can be safely disposed.
+		other._allocated = false;
+		other._data = nullptr;
+		
+		return *this;
+	}
+
+
+	//--------------------------------
+	//	DESTRUCTOR
+	//--------------------------------
+
+	/// <summary>
+	/// Deallocates data array.
+	/// </summary>
+	~ImageBuffer() {
+		DeallocateData();
+	}
+
+
+	//--------------------------------
+	//	OPERATORS
+	//--------------------------------
+
+	/// <summary>
+	/// Subscripting operator works as a proxy for underlying data array.
+	/// </summary>
+	inline T* operator[](const unsigned int &rowIndex) {
+		return _data[rowIndex];
+	}
+
+	/// <summary>
+	/// Subscripting operator works as a proxy for underlying data array.
+	/// </summary>
+	inline const T* operator[](const unsigned int& rowIndex) const {
+		return _data[rowIndex];
+	}
+
+
+protected:
+	//--------------------------------
+	//	FIELDS
+	//--------------------------------
+	///<summary>
+	///Image data. 
+	///Array of rows of pixel samples that are ordered according to image layout.
+	///</summary>
+	T** _data = nullptr;
+
+	/// <summary>
+	/// Tells if data is allocated. Used by destructor.
+	/// </summary>
+	bool _allocated = false;
+
+
+	//--------------------------------
+	//	ARCHIVE
+	//--------------------------------
+
+	/*
+
 	///<summary>
 	///Copy constructor.
 	///</summary>
-	ImageBuffer(const ImageBuffer<T, TMin, TMax, RGBtoG>& source)
-		: ImageBuffer_Base(source._height, source._width, source._layout) {
+	ImageBuffer(const ImageBuffer<T, TMin, TMax, RGBtoG>& other)
+		: ImageBuffer_Base(other._height, other._width, other._layout) {
 
-		//Copying the data if the source has it allocated
-		_allocated = source._allocated;
+		//Copying the data if the other has it allocated
+		_allocated = other._allocated;
 
 		if (_allocated) {
 			//How many pixel components there are in one image row
@@ -777,149 +984,58 @@ public:
 				_data[row] = new T[_cmpWidth];
 				//Copying data
 				for (int cmp = 0; cmp < _cmpWidth; cmp++)
-					_data[row][cmp] = source._data[row][cmp];
+					_data[row][cmp] = other._data[row][cmp];
 			}
 		}
 	}
 
-	///<summary>
-	///Move constructor.
-	///</summary>
-	ImageBuffer(ImageBuffer<T, TMin, TMax, RGBtoG>&& source)
-		: ImageBuffer_Base(source._height, source._width, source._layout) {
-
-		//Reassigning data
-		_allocated = source._allocated;
-
-		if (_allocated)
-			_data = source._data;
-		else
-			_data = NULL;
-
-		//Setting allocation flags, so source object can be safely disposed.
-		source._allocated = false;
-		source._data = NULL;
-	}
 
 	/// <summary>
 	/// Copy assigment.
 	/// </summary>
 	ImageBuffer<T, TMin, TMax, RGBtoG>& operator=(ImageBuffer<T, TMin, TMax, RGBtoG>& other) {
-		//Self assigment
-		if (&other != this) {
-			//Deleting existing data if present
-			if (_allocated) {
-				//Deallocating each row data
-				for (int row = 0; row < _height; row++)
-					delete[] _data[row];
+		//Self assigment check
+		if (&other == this)
+			return *this;
 
-				//Deallocating data array itself
-				delete[] _data;
+		//Deleting existing data if present (sets flag)
+		DeallocateData();
 
-				_allocated = false;
+		//Base info
+		_height = other._height;
+		_width = other._width;
+		_layout = other._layout;
+		_numCmp = other._numCmp;
+		_hasAlpha = other._hasAlpha;
+
+		//Allocate and copy data if present
+		if (other._allocated) {
+			int cmp_width = _numCmp * _width;
+
+			//Allocating rows array
+			_data = new T * [_height];
+
+			for (int row = 0; row < _height; row++) {
+				//Allocating row and copying
+				_data[row] = new T[cmp_width];
+				for (int cmp = 0; cmp < cmp_width; cmp++)
+					_data[row][cmp] = other._data[row][cmp];
 			}
-			
-			//Base info
-			_height = other._height;
-			_width = other._width;
-			_layout = other._layout;
-			_numCmp = other._numCmp;
-			_hasAlpha = other._hasAlpha;
 
-			//Allocate and copy data if present
-			if (other._allocated) {
-				int cmp_width = _numCmp * _width;
-
-				//Allocating rows array
-				_data = new T * [_height];
-
-				for (int row = 0; row < _height; row++) {
-					//Allocating row and copying
-					_data[row] = new T[cmp_width];
-					for (int cmp = 0; cmp < cmp_width; cmp++)
-						_data[row][cmp] = other._data[row][cmp];
-				}
-
-				_allocated = true;
-			}
+			_allocated = true;
 		}
+
 		return *this;
 	}
 
-	/// <summary>
-	/// Move assigment.
-	/// </summary>
-	ImageBuffer<T, TMin, TMax, RGBtoG>& operator=(ImageBuffer<T, TMin, TMax, RGBtoG>&& other) {
-		if (&other != this) {
-			//Deleting existing data if present
-			if (_allocated) {
-				//Deallocating each row data
-				for (int row = 0; row < _height; row++)
-					delete[] _data[row];
-
-				//Deallocating data array itself
-				delete[] _data;
-
-				_allocated = false;
-			}
-
-			//ImageBuffer_Base fields
-			_layout = other._layout;
-			_height = other._height;
-			_width = other._width;
-			_numCmp = other._numCmp;
-			_hasAlpha = other._hasAlpha;
-
-			//Reassigning data
-			_allocated = other._allocated;
-
-			if (_allocated)
-				_data = other._data;
-			else
-				_data = NULL;
-
-			//Setting allocation flags for source object, so it can be safely disposed.
-			other._allocated = false;
-			other._data = NULL;
-		}
-		return *this;
-	}
-
-
-	//--------------------------------
-	//	DESTRUCTOR
-	//--------------------------------
-
-	/// <summary>
-	/// Deallocates data array.
-	/// </summary>
-	~ImageBuffer() {
-		if (_allocated) {
-			//Deallocating each row data
-			for (int row = 0; row < _height; row++)
-				delete[] _data[row];
-
-			//Deallocating data array itself
-			delete[] _data;
-		}
-	}
-
-protected:
-	//--------------------------------
-	//	FIELDS
-	//--------------------------------
-	///<summary>
-	///Image data. 
-	///Array of rows of pixel samples that are ordered according to image layout.
-	///</summary>
-	T** _data = NULL;
-
-	/// <summary>
-	/// Tells if data is allocated. Used by destructor.
-	/// </summary>
-	bool _allocated = false;
+	*/
 
 };
+
+
+
+
+
 
 
 

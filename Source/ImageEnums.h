@@ -11,6 +11,18 @@ enum ImagePixelLayout {
 	RGBA = 4,	//Red-Green-Blue-Alpha
 };
 
+/// <summary>
+/// Contains corresponding number of components when ImagePixelLayout used as index.
+/// </summary>
+const int numCmpIndex[] = {0,1,2,3,4};
+
+/// <summary>
+/// Returns number of components in particular layout.
+/// </summary>
+inline int NumComponentsOfLayout(ImagePixelLayout layout) {
+	return numCmpIndex[static_cast<int>(layout)];
+}
+
 ///<summary>
 /// Bit depth of color component of an image.
 ///</summary>
@@ -38,3 +50,4 @@ enum FileFormat {
 	FF_JPEG,
 	FF_PNG
 };
+

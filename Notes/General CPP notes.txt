@@ -8,12 +8,9 @@ TEMPLATES
 
 * Templated class methods should be defined immedeately.
 You cannot just declare them in the class body and define in some
-other place - linker would be unable to find them.
+other place - linker would not be unable to find them.
 
 * Syntax for template aliases is
 
 	using MyAlias = TemplatedClass<int>;
 	
-------------------------
-COPY AND MOVE
-------------------------

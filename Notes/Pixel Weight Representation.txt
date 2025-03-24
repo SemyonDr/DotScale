@@ -4,7 +4,7 @@ NOTE: PIXEL WEIGHT REPRESENTATION
 
 In various algorithms we calculate certain weights for pixels in 0-100% range.
 
-Pixel weights are stored as 32 bit integers [0-65536] and represent a value from 0% to 100% (note that max value cannot be stored with 16 bit)
+Pixel weights are stored as 32 bit integers in range [0-65536] and represent a value from 0% to 100% (note that max value cannot be stored within 16 bit)
 To apply a weight w to 16 bit integer b we multiply w*b 
 and store the result in 32 bit variable to avoid overflow
 and perform 16 bit bitshift to least significant side.

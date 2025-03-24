@@ -43,7 +43,7 @@ public:
 	///When all rows are already read returns NULL.
 	///<para>Can throw codec_fatal_exception if failed to decompress the image.</para>
 	///</summary>
-	ImageBuffer_Byte* ReadNextRows(int num_rows) override;
+	ImageBuffer_Byte ReadNextRows(int num_rows) override;
 
 
 	//--------------------------------
@@ -58,7 +58,7 @@ public:
 	///<param name="file_path">Path to file to read.</param>
 	///<param name="headerPtr">Writes info to PNG header located at this pointer. If NULL it is ignored.</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static ImageBuffer_Byte* ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr, WarningCallbackData warning_callback_data);
+	static ImageBuffer_Byte ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr, WarningCallbackData warning_callback_data);
 
 	///<summary>
 	///Static method. Reads and decompresses file pointed to by file_path and returns an image buffer object.
@@ -68,7 +68,7 @@ public:
 	///</summary>
 	///<param name="file_path">Path to file to read.</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static ImageBuffer_Byte* ReadPngFile(std::filesystem::path file_path, WarningCallbackData warning_callback_data) {
+	static ImageBuffer_Byte ReadPngFile(std::filesystem::path file_path, WarningCallbackData warning_callback_data) {
 		return ReadPngFile(file_path, NULL, warning_callback_data);
 	}
 
@@ -80,7 +80,7 @@ public:
 	///</summary>
 	///<param name="file_path">Path to file to read.</param>
 	///<param name="headerPtr">Writes info to PNG header located at this pointer. If NULL it is ignored.</param>
-	static ImageBuffer_Byte* ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr) {
+	static ImageBuffer_Byte ReadPngFile(std::filesystem::path file_path, PngHeaderInfo* headerPtr) {
 		WarningCallbackData warning_callback_data(NULL, NULL);
 		return ReadPngFile(file_path, headerPtr, warning_callback_data);
 	}
@@ -94,7 +94,7 @@ public:
 	///</summary>
 	///<param name="file_path">Path to file to read.</param>
 	///<param name="headerPtr">Writes info to PNG header located at this pointer. If NULL it is ignored.</param>
-	static ImageBuffer_Byte* ReadPngFile(std::filesystem::path file_path) {
+	static ImageBuffer_Byte ReadPngFile(std::filesystem::path file_path) {
 		WarningCallbackData warning_callback_data(NULL, NULL);
 		return ReadPngFile(file_path, NULL, warning_callback_data);
 	}

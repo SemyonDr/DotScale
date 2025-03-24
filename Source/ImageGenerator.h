@@ -14,6 +14,6 @@ public:
 	/// <summary>
 	/// Creates an RGB image containing circular gradient with color channel shift.
 	/// </summary>
-	static ImageBuffer_Byte* CircularGradient(int height, int width, BitDepth bit_depth);
+	static ImageBuffer_Byte CircularGradient(int height, int width, BitDepth bit_depth);
 };
 

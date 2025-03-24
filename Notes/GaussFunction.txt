@@ -1,0 +1,96 @@
+------------------------
+NOTE: GAUSS FUNCTION
+------------------------
+
+Gauss function is simplified normal distribution function:
+g(x) = e^(-x^2/2*sigma^2)
+
+Possible x is in range [0..256) (But effectively it goes to 0 from around x = 9.41)
+
+Function class will return:
+1) Function values for specified x
+2) Function definitive integral values for specified [left..right] range
+3) Average function value for specified [left..right] range
+
+In internal representation sigma = 1. When not said otherwise assume sigma is 1.
+
+Most of the values for the function are pre-calculated.
+
+Because there is no 1/sqrt(2pi*sigma) factor function values are in range (0..1].
+
+-----------------------------------
+Representation:
+
+Internally values are represented as uint64 and for value `v` we store integer i such that v = i/2^64.
+We cannot store v = 1 this way because we can't write number 2^64 into uint64.
+g(x) = 1 only when x = 0. The function will return 0 for x = 0 if we ask to return uint64 and user should be aware of that and work around this special case.
+
+-----------------------------------
+Values Pre-calculation:
+
+For argument x in range (0..8] we store pre-calculated function values uniformly distributed with 2^16 values for each segment of width 1, or 8*2^16 values in total. we do not store value for x=0 because it is trivial.
+For 0<=i<=(8*2^16-1) array will store:
+values[i] = g((i+1)/8*2^16)
+
+Table size:
+8*2^16 values * 8 bytes = 524,288 values * 8 bytes = 4,194,304 bytes = 4,096 KiloByte = 4 MegaBytes
+
+-----------------------------------
+Areas Pre-calculation:
+
+We store pre-calculated areas of vertical slices of the function represented as uint64 similar to regular function values.
+We store pre-calculated areas for different slice widths that called scales. 
+Smallest array stores 8 areas for segments [x..x+1] when x is integer. 
+Largest array stores 8*2^64 areas distributed by analogue to precalculated function values.
+In between next scale array stores 4 times number of areas for 4 times smaller slices as previous scale does.
+
+scale_0		8*2^0	8 areas 		slice width 1			
+scale_2		8*2^2	32 areas		slice width 1/4
+scale_4		8*2^4	128 areas		slice width 1/16
+scale_6		8*2^6	512 areas		slice width 1/64
+scale_8		8*2^8	2048 areas		slice width 1/256
+scale_10	8*2^10	8192 areas		slice width 1/1024
+scale_12	8*2^12	32768 areas		slice width 1/4096
+scale_14	8*2^14	131072 areas	slice width 1/16384
+scale_16	8*2^16	524288 areas	slice width 1/65536
+Total				699048 areas * 8 bytes = 5462 KiloByte = 5.5 MegaByte
+
+-----------------------------------
+On memory used:
+
+In total pre-calculated values take 9,5 MegaByte of memory to store and load. This might be excessive, so in the future reducing density of pre calculated values might be considered, especially in [4..8] range where values are small and can be considered effectively 0 and non-important in practical sense. This range might be better served with linear or quadratic approximation.
+Further savings might be gained by reducing density in [0..4] range. Reducing values precision from 64bit to 32 is not recommended.
+
+-----------------------------------
+Returning values:
+
+Function recieves x in the form of two falues uint8 x_int representing integer part of x and uint32 x_fr representing fractional part of x.
+
+Function returns values and integrals following this scheme:
+
+x = 0				g(0) = 0 (for uint64, otherwise 1 returned)
+x from (0..8]		g(x) = interpolating pre-calculated values with linear interpolation
+x from [8..9.41]	g(x) = linear or quadratic approximation of the function
+x larger that 9.41	g(x) = 0
+
+9.41 is cutoff value that is discussed below.
+
+-----------------------------------
+Linear interpolation for values
+
+To find interpolated values first we find between which stored values lies x.
+First x is rounded down, this way we find left pre-calc x:
+	fxdfr_t left = lx = (x_in << 16) + (x_fr >> 16);
+And therefore right x:
+	fxdfr_t right = rx = left + 1; // left + 1/2^16
+
+lv = values[lx]
+rv = values[rx]
+
+  lv|
+	|	  rv
+	|	  |
+____|__x__|___> x axis
+    lx    rx
+
+v = lv + (x-lx)*(lv-rv)/(lx-rx)

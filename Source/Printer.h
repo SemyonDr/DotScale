@@ -72,27 +72,27 @@ public:
 	/// <summary>
 	/// Prints info about image file.
 	/// </summary>
-	static void PrintImageFileInfo(int num_tabs, ImageFileInfo image_info);
+	static void PrintImageFileInfo(int num_tabs, const ImageFileInfo& image_info);
 
 	/// <summary>
 	/// Prints info about image buffer object.
 	/// </summary>
 	/// <param name="num_tabs"></param>
 	/// <param name="image"></param>
-	static void PrintImageBufferInfo(int num_tabs, ImageBuffer_Byte* image);
+	static void PrintImageBufferInfo(int num_tabs, const ImageBuffer_Byte& image);
 
 	/// <summary>
 	/// Print contents of a jpeg header.
 	/// </summary>
-	static void PrintJpegHeader(int num_tabs, JpegHeaderInfo header);
+	static void PrintJpegHeader(int num_tabs, const JpegHeaderInfo& header);
 
 	/// <summary>
 	/// Prins contents of a png header.
 	/// </summary>
-	static void PrintPngHeader(int num_tabs, PngHeaderInfo header);
+	static void PrintPngHeader(int num_tabs, const PngHeaderInfo& header);
 
 	/// <summary>
 	/// Prints file path.
 	/// </summary>
-	static void PrintFilePath(int num_tabs, std::filesystem::path file_path);
+	static void PrintFilePath(int num_tabs, const std::filesystem::path& file_path);
 };

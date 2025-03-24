@@ -3,10 +3,10 @@
 /// <summary>
 /// Creates an RGB image containing circular gradient with color channel shift.
 /// </summary>
-ImageBuffer_Byte* ImageGenerator::CircularGradient(int height, int width, BitDepth bit_depth) {
+ImageBuffer_Byte ImageGenerator::CircularGradient(int height, int width, BitDepth bit_depth) {
 
 	//Resulting image buffer
-	ImageBuffer_Byte* image = new ImageBuffer_Byte(height, width, ImagePixelLayout::RGB, bit_depth);
+	ImageBuffer_Byte image(height, width, ImagePixelLayout::RGB, bit_depth);
 
 	double center_x_red = static_cast<double>(width) / 2.0 + static_cast<double>(width) * 0.05;
 	double center_y_red = static_cast<double>(height) / 2.0 - static_cast<double>(height) * 0.03;
@@ -26,7 +26,7 @@ ImageBuffer_Byte* ImageGenerator::CircularGradient(int height, int width, BitDep
 	switch (bit_depth)
 	{
 		case BD_8_BIT: {
-			uint8_t** data = image->GetData();
+			uint8_t** data = image.GetDataPtr();
 			double px_x = 0.0;
 			double px_y = 0.0;
 			double distance = 0.0;
@@ -60,7 +60,7 @@ ImageBuffer_Byte* ImageGenerator::CircularGradient(int height, int width, BitDep
 		}
 
 		case BD_16_BIT: {
-			uint16_t** data = reinterpret_cast<uint16_t**>(image->GetData());
+			uint16_t** data = reinterpret_cast<uint16_t**>(image.GetDataPtr());
 			double px_x = 0.0;
 			double px_y = 0.0;
 			double distance = 0.0;
@@ -94,7 +94,7 @@ ImageBuffer_Byte* ImageGenerator::CircularGradient(int height, int width, BitDep
 		}
 
 		case BD_32_BIT: {
-			uint32_t** data = reinterpret_cast<uint32_t**>(image->GetData());
+			uint32_t** data = reinterpret_cast<uint32_t**>(image.GetDataPtr());
 			double px_x = 0.0;
 			double px_y = 0.0;
 			double distance = 0.0;
@@ -127,4 +127,6 @@ ImageBuffer_Byte* ImageGenerator::CircularGradient(int height, int width, BitDep
 			return image;
 		}
 	}
+
+	return image;
 }

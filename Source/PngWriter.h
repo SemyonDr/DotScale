@@ -32,7 +32,7 @@ public:
 	///Advances NextRow by the height of given image.
 	///If number of lines in the provided image is bigger than number of rows left writes what is possible.
 	///</summary>
-	void WriteNextRows(ImageBuffer_Byte* image);
+	void WriteNextRows(const ImageBuffer_Byte& image);
 
 	//--------------------------------
 	//	WHOLE FILE WRITING
@@ -53,7 +53,7 @@ public:
 	/// <param name="image">Image to write.</param>
 	/// <param name="header">PNG header that describes the file.</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static void WritePng(std::filesystem::path file_path, ImageBuffer_Byte* image, PngHeaderInfo header, WarningCallbackData warning_callback_data);
+	static void WritePng(std::filesystem::path file_path, const ImageBuffer_Byte& image, PngHeaderInfo header, WarningCallbackData warning_callback_data);
 
 	/// <summary>
 	/// <para>Static method. Compresses and writes image file to the given path.</para>
@@ -64,13 +64,13 @@ public:
 	/// <param name="file_path">Path to the output file.</param>
 	/// <param name="image">Image to write.</param>
 	/// <param name="warning_callback_data">Warning callback and its arguments. Both can be set to NULL inside the structure.</param>
-	static void WritePng(std::filesystem::path file_path, ImageBuffer_Byte* image, WarningCallbackData warning_callback_data) {
+	static void WritePng(std::filesystem::path file_path, const ImageBuffer_Byte& image, WarningCallbackData warning_callback_data) {
 			//Deducting header
 		PngHeaderInfo header_info(
-			image->GetHeight(),
-			image->GetWidth(),
-			ImageBitDepthToPngBitDepth(image->GetBitPerComponent()),
-			ImageLayoutToPngLayout(image->GetLayout()),
+			image.GetHeight(),
+			image.GetWidth(),
+			ImageBitDepthToPngBitDepth(image.GetBitPerComponent()),
+			ImageLayoutToPngLayout(image.GetLayout()),
 			PNG_INTERLACE_NONE
 		);
 		WritePng(file_path, image, header_info, warning_callback_data);
@@ -86,7 +86,7 @@ public:
 	/// <param name="file_path">Path to the output file.</param>
 	/// <param name="image">Image to write.</param>
 	/// <param name="header">PNG header that describes the file.</param>
-	static void WritePng(std::filesystem::path file_path, ImageBuffer_Byte* image, PngHeaderInfo header) {
+	static void WritePng(std::filesystem::path file_path, const ImageBuffer_Byte& image, PngHeaderInfo header) {
 		WarningCallbackData warning_callback(NULL, NULL);
 		WritePng(file_path, image, header, warning_callback);
 	}
@@ -100,13 +100,13 @@ public:
 	/// </summary>
 	/// <param name="file_path">Path to the output file.</param>
 	/// <param name="image">Image to write.</param>
-	static void WritePng(std::filesystem::path file_path, ImageBuffer_Byte* image) {
+	static void WritePng(std::filesystem::path file_path, const ImageBuffer_Byte& image) {
 		//Deducting header
 		PngHeaderInfo header_info(
-			image->GetHeight(),
-			image->GetWidth(),
-			ImageBitDepthToPngBitDepth(image->GetBitPerComponent()),
-			ImageLayoutToPngLayout(image->GetLayout()),
+			image.GetHeight(),
+			image.GetWidth(),
+			ImageBitDepthToPngBitDepth(image.GetBitPerComponent()),
+			ImageLayoutToPngLayout(image.GetLayout()),
 			PNG_INTERLACE_NONE
 		);
 		//Creating empty callbacks object
@@ -190,7 +190,7 @@ protected:
 	/// </summary>
 	/// <param name="image">Input image buffer assumed to be grayscale 8 bit per pixel.</param>
 	/// <param name="bit_depth">Desired bit depth. Possible values are 1, 2, 4.</param>
-	static ImageBuffer_Byte* CrushBitDepth(ImageBuffer_Byte* src_image, int bit_depth);
+	static ImageBuffer_Byte CrushBitDepth(const ImageBuffer_Byte& src_image, int bit_depth);
 	
 	/// <summary>
 	/// Translates Pixel Layout of ImageBuffer to png file layout.

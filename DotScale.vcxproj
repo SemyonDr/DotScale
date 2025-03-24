@@ -173,6 +173,7 @@
     <ClCompile Include="Source\GammaConverter_PlainGamma.cpp" />
     <ClCompile Include="Source\GammaConverter_sRGB.cpp" />
     <ClCompile Include="Source\GammaDispatcher.cpp" />
+    <ClCompile Include="Source\GaussFunction.cpp" />
     <ClCompile Include="Source\ImageBufferPrinter.cpp" />
     <ClCompile Include="Source\ImageBuffer_Byte.cpp" />
     <ClCompile Include="Source\ImageGenerator.cpp" />
@@ -182,10 +183,13 @@
     <ClCompile Include="Source\PngWriter.cpp" />
     <ClCompile Include="Source\Printer.cpp" />
     <ClCompile Include="Source\Stopwatch.cpp" />
+    <ClCompile Include="Source\Tester_DS.cpp" />
     <ClCompile Include="Source\Tester_IO.cpp" />
     <ClCompile Include="Source\Tester_Base.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\FixedFraction.h" />
+    <ClInclude Include="Source\GaussFunction.h" />
     <ClInclude Include="Source\ImageBufferInfo.h" />
     <ClInclude Include="Source\Downscaler.h" />
     <ClInclude Include="Source\EnumToString.h" />
@@ -212,7 +216,10 @@
     <ClInclude Include="Source\PngReader.h" />
     <ClInclude Include="Source\PngWriter.h" />
     <ClInclude Include="Source\Printer.h" />
+    <ClInclude Include="Source\SliceProcessor.h" />
     <ClInclude Include="Source\Stopwatch.h" />
+    <ClInclude Include="Source\Tester_DS.h" />
+    <ClInclude Include="Source\Tester_Gamma.h" />
     <ClInclude Include="Source\Tester_IO.h" />
     <ClInclude Include="Source\Tester_Base.h" />
     <ClInclude Include="Source\WarningCallbackData.h" />

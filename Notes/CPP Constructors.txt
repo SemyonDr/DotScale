@@ -1,0 +1,68 @@
+------------------------
+CPP CONSTRUCTORS
+------------------------
+
+--------------------------------
+BASE CLASS CONSTRUCTOR
+
+MyClass_Base {
+	int _x = 0;
+	int _y = 0;
+
+	MyClass_Base(int x, int y) : _x(x), _y(y) {
+	
+	}
+}
+
+MyClass {
+	std::string _name;
+
+	MyClass(int x, int y, std::string name) : MyClass_Base(x,y), _name(name) {
+	
+	}
+}
+
+
+
+--------------------------------
+INITIALIZATION LISTS
+
+CPP extensivly uses member initialization lists.
+
+Init fields:
+If class field is an object reference of object that does not have default constructor its constructor have to be called in initialization list of every constructor:
+
+Initialization list calls constructor for every object field, and copies values for primitive types.
+
+MyClass(int item_1, int item_2, std::string data_name) :
+	data_object_field(item_1, item_2, data_name) {
+}
+
+
+Chaining constructors:
+You can call
+
+
+class MyClass {
+
+
+
+	//To disable default constructor
+	MyClass() = delete;
+
+	MyClass(uint32_t count, )
+
+private:
+//--------------------------------
+//	PRIVATE DATA FIELDS
+//--------------------------------	
+
+	uint32_t count = 100; //Will be set to 100 automatically.
+	uint32_t count; //Will be set to ???
+	
+	//Class field with default constructor
+	
+	
+
+
+}

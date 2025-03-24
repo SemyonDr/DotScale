@@ -33,7 +33,23 @@ public:
 	/// <summary>
 	/// Opens an image.
 	/// </summary>
-	static ImageFileInfo OpenImage(int num_tabs, std::filesystem::path file_path);
+	static ImageBuffer_Byte OpenImage(int num_tabs, std::filesystem::path file_path, ImageFileInfo* info_ptr);
+
+	/// <summary>
+	/// Opens an image and removes gamma.
+	/// </summary>
+	static ImageBuffer_uint16 OpenImageAndRemoveGamma(int num_tabs, std::filesystem::path file_path, ImageFileInfo* info_ptr);
+
+	/// <summary>
+	/// Writes image at given path.
+	/// </summary>
+	static void WriteImage(int num_tabs, const ImageBuffer_Byte& image, const ImageFileInfo& info);
+
+	/// <summary>
+	/// Applies gamma and writes back image.
+	/// </summary>
+	static void ApplyGammaAndWriteImage(int num_tabs, const ImageBuffer_uint16& image, const ImageFileInfo& info);
+
 
 	/// <summary>
 	/// Method to call when jpeg codec produces warnings.
@@ -78,14 +94,18 @@ public:
 	/// <summary>
 	/// Returns true if file path points to JPEG a file. Only checks extension, not actual file contents.
 	/// </summary>
-	/// <returns></returns>
 	static bool IsJpeg_ByExtension(std::filesystem::path file_path);
 
 	/// <summary>
 	/// Returns true if file path points to PNG a file. Only checks extension, not actual file contents.
 	/// </summary>
-	/// <returns></returns>
 	static bool IsPng_ByExtension(std::filesystem::path file_path);
+
+
+	/// <summary>
+	/// Checks file extension and returns image file type this extension indicates.
+	/// </summary>
+	static FileFormat GetImageTypeByExpension(std::filesystem::path file_path);
 
 
 };

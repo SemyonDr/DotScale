@@ -10,44 +10,64 @@
 #include <list>
 //Internal
 #include "Tester_IO.h"
+#include "Tester_Gamma.h"
+#include "Tester_DS.h"
 
 int main()
 {
-	if (false) {
-		Tester_IO::TestJpegReader("parrot.jpg");
+	try {
+		if (false) {
+			Tester_IO::TestJpegReader("parrot.jpg");
+		}
+
+		if (false) {
+			Tester_IO::TestJpegWriter();
+		}
+
+		if (false) {
+			Tester_IO::TestPngReader("parrot_RGB_16bit_sRGB.png");
+		}
+
+		if (false) {
+			Tester_IO::TestPngWriter();
+		}
+
+		if (false) {
+			Tester_IO::TestJpegReader_Simple("parrot.jpg");
+		}
+
+		if (false) {
+			Tester_IO::TestJpegIOAtOnce("parrot.jpg");
+		}
+
+		if (false) {
+			Tester_IO::TestPngIOAtOnce("parrot_RGB_8bit_sRGB.png");
+		}
+
+		if (false) {
+			Tester_IO::TestJpegReaderByChunks("parrot.jpg", 89);
+		}
+
+		if (false) {
+			Tester_IO::TestPngReaderByChunks("parrot_RGB_16bit_sRGB.png", 117);
+		}
+
+		if (false) {
+			Tester_Gamma::TestSRGBConversion("parrot.jpg");
+		}
+
+		if (true) {
+			Tester_DS::Test_DownscalerSliced(2842, 0.33, "parrot.jpg");
+		}
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Unhandled Exception: " << e.what() << std::endl;
+		return 1;
+	}
+	catch (...) {
+		std::cerr << "Unknown exception occurred!" << std::endl;
+		return 1;
 	}
 
-	if (false) {
-		Tester_IO::TestJpegWriter();
-	}
-
-	if (false) {
-		Tester_IO::TestPngReader("parrot_RGB_16bit_sRGB.png");
-	}
-	
-	if (true) {
-		Tester_IO::TestPngWriter();
-	}
-
-	if (false) {
-		Tester_IO::TestJpegReader_Simple(".\\TestImages\\parrot.jpg");
-	}
-
-	if (false) {
-		Tester_IO::TestJpegIOAtOnce(".\\TestImages\\parrot.jpg");
-	}
-
-	if (false) {
-		Tester_IO::TestPngIOAtOnce(".\\TestImages\\parrot_RGB_8bit_sRGB.png");
-	}
-	
-	if (false) {
-		Tester_IO::TestJpegReaderByChunks(".\\TestImages\\parrot.jpg", 89);
-	}
-
-	if (false) {
-		Tester_IO::TestPngReaderByChunks(".\\TestImages\\parrot_RGB_16bit_sRGB.png",117);
-	}
-	
 	
 }
