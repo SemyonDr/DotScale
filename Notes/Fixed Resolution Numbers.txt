@@ -8,7 +8,7 @@ To represent non-negative fractional numbers I use unsigned integers where lower
 Upper 16 bit (or 48 bit for 64 bit number) represent integer part.
 Integer part should be in range [0..65535].
 Fractional part value is distributed uniformly with steps 1/65536 which is more than enough resolution for practical purposes of image processing.
-This representation guarantees uniform precision and values representation in practical ranges, while `double` might introduce un-uniform distribution and unpredictable aliasing.
+This representation guarantees uniform precision and values representation in practical ranges, while `double` might introduce non-uniform distribution and unpredictable aliasing.
 
 16 bit uint can be promoted to fixres with 16 bit left binary shift.
 
