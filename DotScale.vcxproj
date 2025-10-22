@@ -154,6 +154,8 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,7 +175,7 @@
     <ClCompile Include="Source\GammaConverter_PlainGamma.cpp" />
     <ClCompile Include="Source\GammaConverter_sRGB.cpp" />
     <ClCompile Include="Source\GammaDispatcher.cpp" />
-    <ClCompile Include="Source\GaussFunction.cpp" />
+    <ClCompile Include="Source\GaussCurve.cpp" />
     <ClCompile Include="Source\ImageBufferPrinter.cpp" />
     <ClCompile Include="Source\ImageBuffer_Byte.cpp" />
     <ClCompile Include="Source\ImageGenerator.cpp" />
@@ -184,12 +186,15 @@
     <ClCompile Include="Source\Printer.cpp" />
     <ClCompile Include="Source\Stopwatch.cpp" />
     <ClCompile Include="Source\Tester_DS.cpp" />
+    <ClCompile Include="Source\Tester_Gauss.cpp" />
     <ClCompile Include="Source\Tester_IO.cpp" />
     <ClCompile Include="Source\Tester_Base.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\FixedFraction.h" />
-    <ClInclude Include="Source\GaussFunction.h" />
+    <ClInclude Include="Source\FixedMath.h" />
+    <ClInclude Include="Source\FixedMathTypes.h" />
+    <ClInclude Include="Source\GaussCurve.h" />
     <ClInclude Include="Source\ImageBufferInfo.h" />
     <ClInclude Include="Source\Downscaler.h" />
     <ClInclude Include="Source\EnumToString.h" />
@@ -212,6 +217,7 @@
     <ClInclude Include="Source\JpegWriter.h" />
     <ClInclude Include="Source\LibJpegCallbacks.h" />
     <ClInclude Include="Source\LibPngCallbacks.h" />
+    <ClInclude Include="Source\NormalDistribution.h" />
     <ClInclude Include="Source\PngHeaderInfo.h" />
     <ClInclude Include="Source\PngReader.h" />
     <ClInclude Include="Source\PngWriter.h" />
@@ -220,6 +226,7 @@
     <ClInclude Include="Source\Stopwatch.h" />
     <ClInclude Include="Source\Tester_DS.h" />
     <ClInclude Include="Source\Tester_Gamma.h" />
+    <ClInclude Include="Source\Tester_Gauss.h" />
     <ClInclude Include="Source\Tester_IO.h" />
     <ClInclude Include="Source\Tester_Base.h" />
     <ClInclude Include="Source\WarningCallbackData.h" />
