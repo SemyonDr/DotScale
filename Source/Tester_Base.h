@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <chrono>
 //Internal
+#include "FixedMath.h"
 #include "JpegReader.h"
 #include "JpegWriter.h"
 #include "PngReader.h"

@@ -21,7 +21,7 @@ I have libraries that have been built with:
 	C++17
 	ISO C17
 
-Everything can and be re-built with newer versions, but not before instruction on building the libas are produced, so...
+Everything can and be re-built with newer versions, but not before instruction on building the libs are produced, so...
 	
 --------
 ADVANCED:

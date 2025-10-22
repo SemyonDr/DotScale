@@ -1,0 +1,147 @@
+x :
+	16 bit precision
+	19 bit max 443,266 - unsigned
+a :
+	signed
+	33 bit precision
+	31 bit max + sing
+	max value is +1975806961
+	32        24        16        8
+	0111 0101 1100 0100 0110 1011 1111 0001
+	max at spline 47
+b : 	
+	signed
+	31 bit precision
+	31 bit max + sign
+	max value is -1465986198
+	32        24        16        8
+	1010 1000 1001 1110 1101 0011 0110 1010
+	max at spline 47
+c :
+	signed
+	30 bit precision
+	31 bit max + sign
+	max value is -1992348287
+	32        24        16        8
+	1000 1001 0011 1111 0010 1101 1000 0001
+	max at spline 149
+d :
+	unsigned
+	30 bit precision
+	32 bit max without sign
+	max value is 2160967861
+	32        24        16        8
+	1000 0000 1100 1101 1100 0000 1011 0101
+	max at spline 149
+		
+		
+
+First step: 
+	res = a*x
+	result precision:	16 + 33 = 49 bit 
+	max value length:	47 bit + sign 
+	max result:			+112913897553920 		+0.40115074836649
+	48        40        32        24        16        8
+	0110 0110 1011 0001 1101 0000 1100 0001 0000 0000 0000 0000
+	max res at spline:	64
+
+Second step:
+	b = b << 18 -- Promoting b to 49 bit precision from 31 bit to match res
+	res = res + b
+	result precision:	49 bit (addition does not change precision)
+	max value length:	49 bit + sign
+	max result:			-384,204,647,154,384	-0.341242276351025
+	56        48        40        32        24        16        8
+	1111 1110 1010 0010 1001 0001 0110 0010 0111 1100 0011 1101 0011 0000
+	max res at spline:	47
+	
+Third step:
+	res = res >> 3 -- Demoting res to 46 bit precision from 49 bit to fit result into 64 bit
+	res = res * x 
+	result precision:	46 + 16 = 62 bit
+	max value length:	63 bit + sign
+	max result: 		+4770882214114099200	+1.034520172242992
+	64        56        48        40        32        24        16        8
+	0100 0010 0011 0101 1001 0100 0001 1000 1011 0101 1000 0000 0000 0000 0000 0000
+	max res at spline:	156
+	
+Fourth step:
+	c = c << 32 -- Promoting c to 62 to bit precision from 30 bit to match res
+	res = res + c
+	result precision:	62 bit (addition does not change precision)
+	max value length:	63 bit + sign
+	max result:			-8550913953895691552	-1.8541838971100646
+	64        56        48        40        32        24        16        8
+	1000 1001 0101 0101 0000 1101 0001 0000 0100 1001 0001 1101 1100 1010 1110 0000
+	max res at spline:	149
+	
+Fifth step:
+	res = res >> 16 -- Demoting res to 46 bit precision from 62 bit to fit result into 64 bit
+	res = res * x
+	result precision:	46 + 16 = 62 bit
+	max value length:	63 bit + sign
+	max result:			-8989301722879885312	-1.949244091414812
+	64        56        48        40        32        24        16        8
+	1000 0011 0011 1111 1001 0101 1011 0101 1101 1100 1111 0000 0000 0000 0000 0000
+	max res at spline:	152
+	
+Sixth step:
+	d = d << 32 -- Promoting d to 62 bit precision from 30 bit to match res
+	result precision:	62 bit (addition does not change precision)
+	max value length:	64 bit - no sign!
+	max result:			9261714801854961406		2.0083142618224605
+	64        56        48        40        32        24        16        8
+	0100 0010 0011 0101 1001 0100 0001 1000 1011 0101 1000 0000 0000 0000 0000 0000
+	max res at spline:	149
+
+	
+
+
+
+
+Max 64 bit signed [+9223372036854775807]
+Min 64 bit signed [-9223372036854775808]
+Step 1
+	Max Abs:	0.20373397674448994431155439101550434276155993607537
+	At x:		1
+	In spline:	63
+	Max Precision:	65
+	Max Int With
+	Precision 65:	7516457056249398976
+Step 2
+	Max Abs:	-0.53532127454710790894013917743028489408717857594743
+	At x:		17/32
+	In spline:	34
+	Max Precision:	63
+	Max Int With
+	Precision 63:	-4937467274391253327
+Step 3
+	Max Abs:	1.0388105979612388105055823537677071219993864729834
+	At x:		157/64
+	In spline:	156
+	Max Precision:	62
+	Max Int With
+	Precision 62:	4790668310412039412
+Step 4
+	Max Abs:	-0.86876470443268397172883264882865594698691774009914
+	At x:		135/64
+	In spline:	135
+	Max Precision:	63
+	Max Int With
+	Precision 63:	-8012940081470821641
+Step 5
+	Max Abs:	-1.9514218209790160666012186883768360435159579700813
+	At x:		153/64
+	In spline:	152
+	Max Precision:	62
+	Max Int With
+	Precision 62:	-8999344727863041548
+Step 6
+	Max Abs:	1.0000000000000000000000000000000000000000000000000
+	At x:		0
+	In spline:	0
+	Max Precision:	62
+	Max Int With
+	Precision 62:	4611686018427387904
+	
+	

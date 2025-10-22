@@ -84,8 +84,11 @@
     <ClCompile Include="Source\Tester_DS.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GaussFunction.cpp">
+    <ClCompile Include="Source\GaussCurve.cpp">
       <Filter>Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tester_Gauss.cpp">
+      <Filter>Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,7 +194,19 @@
     <ClInclude Include="Source\FixedFraction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\GaussFunction.h">
+    <ClInclude Include="Source\GaussCurve.h">
+      <Filter>Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_Gauss.h">
+      <Filter>Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FixedMath.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FixedMathTypes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\NormalDistribution.h">
       <Filter>Processing</Filter>
     </ClInclude>
   </ItemGroup>

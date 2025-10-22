@@ -6,6 +6,7 @@
 
 #include "ImageFileInfo.h"
 #include "ImageBuffer_Byte.h"
+#include "FixedMath.h"
 
 #include "EnumToString.h"
 
@@ -95,4 +96,12 @@ public:
 	/// Prints file path.
 	/// </summary>
 	static void PrintFilePath(int num_tabs, const std::filesystem::path& file_path);
+
+	/// <summary>
+	/// Prints formatted line that reports integer value with int64 and binary representation.
+	/// 
+	/// </summary>
+	static void PrintValueReportIntBinary64(std::string text, uint64_t value) {
+		std::cout << std::setw(20) << std::setfill(' ') <<std::left << text << "\t" << std::setw(20) << std::setfill(' ') << value << "\t" << FxdMath::to_str_binary_u64(value) << std::endl;
+	}
 };

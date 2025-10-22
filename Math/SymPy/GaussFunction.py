@@ -1,7 +1,10 @@
 from argparse import ArgumentTypeError
 
-from HermiteSpline import HermiteSpline
-from sympy import Expr, exp, symbols, Symbol, Rational, Float, integrate, diff, simplify, expand, together, cancel
+from AreaSpline import AreaSpline
+from SplineCoefs import VSplineCoefsFloat, ASplineCoefsFloat
+from ValueSpline import ValueSpline
+from sympy import Expr, exp, symbols, Symbol, Rational, Float, integrate, diff, simplify, expand, together, cancel, Eq, \
+    solve
 
 
 class GaussFunction:
@@ -26,6 +29,14 @@ class GaussFunction:
     # Derivative
     # g'(x) = -x * e^(-(x/s)^2 * 1/2)
     __gauss_drv = diff(exp(-(((Symbol('x')/Symbol('sigma'))**2)/2)), 'x')
+    # Polynomial used for area approximation
+    __area_aprx_poly : Expr = (
+            Symbol('c1') * (Symbol('x') ** 5) +
+            Symbol('c2') * (Symbol('x') ** 4) +
+            Symbol('c3') * (Symbol('x') ** 3) +
+            Symbol('c4') * (Symbol('x') ** 2) +
+            Symbol('c5') * (Symbol('x'))      +
+            Symbol('c6'))
 
     # Expressions for 3rd degree polynomial coefficients
     # for spline approximation
@@ -80,15 +91,68 @@ class GaussFunction:
         return integral.evalf(n=self.__precision)
 
 
-    def get_approximation(self, left : Rational, right : Rational) -> HermiteSpline:
+    def get_value_approximation(self, left : Rational, right : Rational) -> ValueSpline:
         lr_subs_map = {'sigma' : self.__sigma, 'x0' : left, 'x1' : right }
 
-        a_val = GaussFunction.__a.subs(lr_subs_map).evalf(n = self.__precision)
+        a_val = GaussFunction.__a.subs(lr_subs_map).evalf(n=self.__precision)
         b_val = GaussFunction.__b.subs(lr_subs_map).evalf(n=self.__precision)
         c_val = GaussFunction.__c.subs(lr_subs_map).evalf(n=self.__precision)
         d_val = GaussFunction.__d.subs(lr_subs_map).evalf(n=self.__precision)
 
-        return HermiteSpline(a_val, b_val, c_val, d_val, left, right, self.__precision)
+        return ValueSpline(
+            VSplineCoefsFloat(a_val, b_val, c_val, d_val),
+            left, right,
+            self.__precision)
+
+    def get_area_approximation(self, left : Rational, right : Rational) -> AreaSpline:
+        # Symbols for expressions
+        x = Symbol('x')
+        c1, c2, c3, c4, c5, c6 = symbols("c1 c2 c3 c4 c5 c6")
+
+        # 1 -- Preparing expressions
+        # g(x)
+        gx = self.__gauss
+        gx0 = self.__gauss.subs(x, left).evalf(self.__precision)
+        gx1 = self.__gauss.subs(x, right).evalf(self.__precision)
+        # g'(x)
+        dgx = diff(gx, x)
+        dgx0 = dgx.subs(x, left).evalf(self.__precision)
+        dgx1 = dgx.subs(x, right).evalf(self.__precision)
+        # integral(g(x))
+        igx01 = integrate(gx, (x, left, right)).evalf(self.__precision)
+        # integral(xg(x))
+        imgx01 = integrate(x * gx, (x, left, right)).evalf(self.__precision)
+
+        # p(x)
+        px = self.__area_aprx_poly
+        px0 = px.subs(x, left)
+        px1 = px.subs(x, right)
+        # p'(x)
+        dpx = diff(px, x)
+        dpx0 = dpx.subs(x, left)
+        dpx1 = dpx.subs(x, right)
+        # integral(p(x))
+        ipx01 = integrate(px, (x, left, right))
+        # integral(xp(x))
+        impx01 = integrate(x * px, (x, left, right))
+
+        # 2 -- Solving
+        # Equations system
+        equations = [
+            Eq(px0, gx0),
+            Eq(px1, gx1),
+            Eq(dpx0, dgx0),
+            Eq(dpx1, dgx1),
+            Eq(ipx01, igx01),
+            Eq(impx01, imgx01)
+        ]
+        # Solving for coefficients
+        sol = solve(equations, (c1, c2, c3, c4, c5, c6))
+
+        # 3 -- Returning approximation object
+        coefs = ASplineCoefsFloat(sol[c1], sol[c2], sol[c3], sol[c4], sol[c5], sol[c6])
+        aprx_spline = AreaSpline(coefs, left, right, self.__precision)
+        return aprx_spline
 
 
     #----------------

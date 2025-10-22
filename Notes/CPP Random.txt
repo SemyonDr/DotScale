@@ -1,0 +1,24 @@
+------------------------
+CPP RANDOM NUMBER
+GENERATOR
+------------------------
+
+// Create a random device to seed the generator (non-deterministic if available)
+std::random_device rd;
+
+// Create a Mersenne Twister engine seeded with rd
+std::mt19937 gen(rd());
+std::mt19937_64 gen(rd()); // For 64 bit numbers
+
+// Define the distribution range (inclusive both ends)
+std::uniform_int_distribution<int> dist(10, 20); // generates [10, 20]
+std::uniform_int_distribution<uint64_t> dist(10, 20); // For 64 bit numbers
+
+// Generate a few random numbers
+for (int i = 0; i < 5; ++i) {
+	std::cout << dist(gen) << "\n";
+}
+
+std::random_device gives you an initial random seed.
+std::mt19937 is a Mersenne Twister engine — good general-purpose PRNG.
+std::uniform_int_distribution<int>(a, b) guarantees a uniform integer distribution in [a, b].

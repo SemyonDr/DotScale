@@ -12,6 +12,7 @@
 #include "Tester_IO.h"
 #include "Tester_Gamma.h"
 #include "Tester_DS.h"
+#include "Tester_Gauss.h"
 
 int main()
 {
@@ -56,9 +57,29 @@ int main()
 			Tester_Gamma::TestSRGBConversion("parrot.jpg");
 		}
 
-		if (true) {
+		if (false) {
 			Tester_DS::Test_DownscalerSliced(2842, 0.33, "parrot.jpg");
 		}
+
+		if (false) {
+			Tester_Gauss::TestValue32(20, true);
+			Tester_Gauss::TestValue32(10000000, false);
+		}
+
+		if (false) {
+			Tester_Gauss::TestArea63(20, true);
+			Tester_Gauss::TestArea63(10000000, false);
+		}
+
+		if (false) {
+			Tester_Gauss::TestSqrt(10);
+		}
+
+		if (true) {
+			Tester_Gauss::TestAverages(30, true);
+			Tester_Gauss::TestAverages(1000000, false);
+		}
+
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Unhandled Exception: " << e.what() << std::endl;
@@ -68,6 +89,4 @@ int main()
 		std::cerr << "Unknown exception occurred!" << std::endl;
 		return 1;
 	}
-
-	
 }
