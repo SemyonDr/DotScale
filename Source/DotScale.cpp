@@ -9,12 +9,78 @@
 #include <filesystem>
 #include <list>
 //Internal
+#include "Options.h"
 #include "Tester_IO.h"
 #include "Tester_Gamma.h"
 #include "Tester_DS.h"
 #include "Tester_Gauss.h"
+// 3D party
+#include "CLI11.hpp"
 
-int main()
+
+
+
+
+/// <summary>
+/// Sets up CLI options using CLI11 library.
+/// </summary>
+DotscaleOptions parse_cli_args(int argc, char** argv) {
+	std::string app_description =
+		"Application for high precision moire-free image downscaling.\n"
+		"JPG and PNG files are supported.\n"
+		"Image metadata is not preserved.";
+
+	DotscaleOptions options;
+	CLI::App dotscale_cli(app_description);
+		
+	// -----------------------
+	// Options definitions
+
+	std::vector<int> scaleArgs;
+	dotscale_cli.add_option(
+		"--scale_abs", 
+		scaleArgs, 
+		"New absolute size. Height and width, or single number and --scale_target specifier.")
+		->expected(1, 2);
+
+	dotscale_cli.add_option(
+		"--scale_target",
+		options.scale.abs_target,
+		"Target for absolute scale value.")
+		->transform(CLI::CheckedTransformer(
+			std::map<std::string, AbsScaleTarget>{
+				{ "long", AbsScaleTarget::LongEdge},
+				{ "short", AbsScaleTarget::ShortEdge },
+				{ "vert", AbsScaleTarget::Vertical },
+				{ "hor", AbsScaleTarget::Horizontal },
+				{ "equal", AbsScaleTarget::Equal }
+			},
+			CLI::ignore_case
+		));
+
+	dotscale_cli.add_option(
+		"--scale_abs",
+		scaleArgs,
+		"New relative size in %. Single number for both dimensions, or height and width separately.")
+		->expected(1, 2);
+
+	dotscale_cli.add_option(
+		"--blur",
+		options.blur.radius,
+		"Apply blur before resizing. Expects blur radius in px, may be fractional. Min radius is 0.5px.")
+		->expected(1, 2);
+
+	// -----------------------
+	// Options parsing
+
+	dotscale_cli.parse(argc, argv);
+
+	
+
+	return options;
+}
+
+int main(int argc, char** argv)
 {
 	try {
 		if (false) {
@@ -75,9 +141,13 @@ int main()
 			Tester_Gauss::TestSqrt(10);
 		}
 
-		if (true) {
+		if (false) {
 			Tester_Gauss::TestAverages(30, true);
 			Tester_Gauss::TestAverages(1000000, false);
+		}
+
+		if (true) {
+			
 		}
 
 	}

@@ -21,13 +21,28 @@ public:
 	//--------------------------------
 
 	/// <summary>
-	/// This masks keeps top 32 bits of 64 bit number.
+	/// This mask keeps top 16 bits of 32 bit number;
 	/// </summary>
-	static constexpr uint64_t MASK_32_TOP = 0xFFFFFFFF00000000;
+	static constexpr uint32_t MASK_32_16_TOP = 0xFFFF0000;
 	/// <summary>
-	/// This masks keeps bottom 32 bits of 64 bit number.
+	/// This mask keeps bottom 16 bits of 32 bit number;
 	/// </summary>
-	static constexpr uint64_t MASK_32_BOT = 0x00000000FFFFFFFF;
+	static constexpr uint32_t MASK_32_16_BOT = 0x0000FFFF;
+
+
+	/// <summary>
+	/// This mask keeps top 32 bits of 64 bit number.
+	/// </summary>
+	static constexpr uint64_t MASK_64_32_TOP = 0xFFFFFFFF00000000;
+	/// <summary>
+	/// This mask keeps bottom 32 bits of 64 bit number.
+	/// </summary>
+	static constexpr uint64_t MASK_64_32_BOT = 0x00000000FFFFFFFF;
+
+	/// <summary>
+	/// This mask covers all 64 bits of 64 bit number.
+	/// </summary>
+	static constexpr uint64_t MASK_64_FULL = 0xFFFFFFFFFFFFFFFF;
 
 	//--------------------------------
 	//  MULTIPLICATION
@@ -45,11 +60,11 @@ public:
 	/// <param name="y">-- Signed. 64 bits width. 60 bits precision.</param>
 	/// <returns>Signed. 64 bits width. 60 bits precision.</returns>
 	static inline fxd64_60_t mult_s64_60(ufxd64_60_t x, fxd64_60_t y) {
-		int64_t x_top = (x & MASK_32_TOP) >> 32; // 60 - 32 = 28 bits precision
-		int64_t x_bot = x & MASK_32_BOT; // 60 bits precision
+		int64_t x_top = (x & MASK_64_32_TOP) >> 32; // 60 - 32 = 28 bits precision
+		int64_t x_bot = x & MASK_64_32_BOT; // 60 bits precision
 
-		int64_t y_top = (y & MASK_32_TOP) >> 32; // 60 - 32 = 28 bits precision
-		int64_t y_bot = y & MASK_32_BOT; // 60 bits precision
+		int64_t y_top = (y & MASK_64_32_TOP) >> 32; // 60 - 32 = 28 bits precision
+		int64_t y_bot = y & MASK_64_32_BOT; // 60 bits precision
 
 		return ((y_top * x_top) << 4) +		// 28 + 28 = 56 bits precision. 56 + 4 = 60
 			((y_top * x_bot) >> 28) +		// 28 + 60 = 88 bits precision. 88 - 28 = 60
@@ -67,14 +82,14 @@ public:
 		// It is important to make separation in two steps because applying the mask
 		// makes intermediate result unsigned and the sign would be lost
 		// if following is performed
-		// return (val & MASK_32_TOP) >> 32
-		fxd64_60_t res = val & MASK_32_TOP;
+		// return (val & MASK_64_32_TOP) >> 32
+		fxd64_60_t res = val & MASK_64_32_TOP;
 		return res >> 32;
 	}
 
 	/// <summary> Separates bottom 32 bit part of a number. </summary>
 	static constexpr inline fxd64_60_t bot_32(fxd64_60_t val) noexcept {
-		return val & MASK_32_BOT;
+		return val & MASK_64_32_BOT;
 	}
 
 
@@ -82,7 +97,7 @@ public:
 	//  DIVISION
 	//--------------------------------
 
-	
+
 
 
 
@@ -115,7 +130,7 @@ public:
 				// Reducing the remainder
 				x -= term;
 				// Counting the result
-				res = (res >> 1)| candidate;
+				res = (res >> 1) | candidate;
 			}
 			else
 				res >>= 1;
@@ -132,11 +147,10 @@ public:
 	//  CONVERSION TO DOUBLE
 	//--------------------------------
 
-
 	static inline double to_double(uint64_t val, int precision) {
-		uint64_t mask_bot = 0xFFFFFFFFFFFFFFFF >> (64 - precision);
+		uint64_t mask_bot = MASK_64_FULL >> (64 - precision);
 		double res = static_cast<double>((val & (~mask_bot)) >> precision);
-		res += static_cast<double>(val & mask_bot) / static_cast<double>(1 << precision);
+		res += static_cast<double>(val & mask_bot) / static_cast<double>(static_cast<uint64_t>(1) << precision);
 		return res;
 	}
 
@@ -163,7 +177,7 @@ public:
 		double val_int;
 		double val_fract = std::modf(val, &val_int);
 		uint64_t res = static_cast<uint64_t>(val_int) << precision;
-		res += static_cast<uint64_t>(val_fract * static_cast<double>(1 << precision));
+		res += static_cast<uint64_t>(val_fract * static_cast<double>(static_cast<uint64_t>(1) << precision));
 		return res;
 	}
 
@@ -232,6 +246,7 @@ public:
 		}
 		return oss.str();
 	}
+
 
 private:
 

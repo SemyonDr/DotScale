@@ -90,6 +90,12 @@
     <ClCompile Include="Source\Tester_Gauss.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Blurer.cpp">
+      <Filter>Processing</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Tester_Blur.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ImageBuffer_Byte.h">
@@ -208,6 +214,15 @@
     </ClInclude>
     <ClInclude Include="Source\NormalDistribution.h">
       <Filter>Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blurer.h">
+      <Filter>Processing</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Options.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Tester_Blur.h">
+      <Filter>Debug</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

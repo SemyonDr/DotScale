@@ -7,7 +7,7 @@
 
 /// <summary>
 /// Takes in x as integer with fractional precision of 60 bits and returns 32 bit fractional precision function value.
-/// If x is 0, then 0 is returned (instead of number that represents 1.0) 
+/// If x is 0, then 0 is returned (instead of number that represents 1.0)  
 /// because 1 cannot be represented with 32 bit precision by 32 bit number.
 /// </summary>
 ufxd32_32_t GaussCurve::Value_x60_v32(ufxd64_60_t x) {
@@ -37,31 +37,31 @@ ufxd32_32_t GaussCurve::Value_x60_v32(ufxd64_60_t x) {
 	fxd64_60_t res_bot = 0;
 
 	// Splitting x
-	fxd64_28_t x_top = (x & FxdMath::MASK_32_TOP) >> 32;
-	fxd64_60_t x_bot = x & FxdMath::MASK_32_BOT;
+	fxd64_28_t x_top = (x & FxdMath::MASK_64_32_TOP) >> 32;
+	fxd64_60_t x_bot = x & FxdMath::MASK_64_32_BOT;
 
 	// STEP 1 -- ax
-	fxd64_28_t a_top = cf.a & FxdMath::MASK_32_TOP;
+	fxd64_28_t a_top = cf.a & FxdMath::MASK_64_32_TOP;
 	a_top = a_top >> 32;
-	fxd64_60_t a_bot = cf.a & FxdMath::MASK_32_BOT;
+	fxd64_60_t a_bot = cf.a & FxdMath::MASK_64_32_BOT;
 	res = ((a_top * x_top) << 4) + ((a_top * x_bot) >> 28) + ((a_bot * x_top) >> 28) + ((a_bot * x_bot) >> 60);
 
 	// STEP 2 -- ax + b
 	res = res + cf.b;
 
 	// STEP 3 -- (ax + b)x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 4 -- (ax + b)x + c
 	res = res + cf.c;
 
 	// STEP 5 -- ((ax + b)x + c)x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 6 -- ((ax + b)x + c)x + d
@@ -93,29 +93,43 @@ ufxd32_32_t GaussCurve::Average_x60_v32(ufxd64_60_t left, ufxd64_60_t right) {
 	// Now we divide the area by the interval width
 	ufxd64_60_t width = right - left;
 	const ufxd64_28_t w_top = width >> 32;
-	const ufxd64_60_t w_bot = width & FxdMath::MASK_32_BOT;
+	const ufxd64_60_t w_bot = width & FxdMath::MASK_64_32_BOT;
+
 
 	// We divide in a manner similar to finding the square root.
+	// See square root algorithm notes for some explanations.
+	// This algorithm is similar in principle, 
+	// but does not use optimizations we can have for finding square roots.
 	// We use following relation
 	//		area / width = res  -->  res * width = area
 	// res is split into sum of 1 digit values (r1 + r2 + r3 + r4 + ... + r32)
+	// For example in a number 1101:
+	// r1 = 1000 
+	// r2 = 0100
+	// r3 = 0000
+	// r4 = 0001
 	// And therefore:
 	//		area = r1*width + r2*width + r3*width + ... + r32*width
 	// On each iteration we find if ri=0 or ri=2^32-i by checking if
-	// (2^32-i)*width will exceed area remainder.
+	// ri*width=(2^32-i)*width will exceed area remainder if ri is set to 2^32-i.
 	// Note on possible values:
-	// This method assumes that area and width are valid ones.
-	// This implies that average value is always < 1.0 and
+	// This method assumes that area and width are valid ones,
+	// which means that average value is always less than 1.0 and
 	// can fit into 32 bits with 32 bits precision.
-	// Also assumed that max integer part of the area is 1
+	// Also assumed that max integer part of the area is 1.
+	// Note that 'area' variable acts as a remainder in this implementation and diminishes with
+	// each found term.
 	uint64_t res = 0;
 	uint64_t cand = 0x80000000; // 1000 0000 0000 0000 0000 0000 0000 0000
 	int cand_index = 31;
 	ufxd64_63_t term = 0;
 
-	// For cand that are larger than 29 bits term value (w_top*cand << 3) might overflow past 32 bits depending on w_top (if width is more than 1.0 it will overflow).
+	// For cand that are larger than 29 bits term value (w_top*cand << 3) might overflow past 32 bits
+	// depending on w_top (if width is more than 1.0 (inclusive) it will overflow).
 	// For these 3 cases we add additional overflow check. 
-	while (cand > 0x10000000) {		// 0001 0000 0000 0000 0000 0000 0000 0000
+	// If you want to understand what is happenening in general look at the second while block.
+	// The first block is only for this edge case.
+	while (cand > 0x10000000) {		// cand > 0001 0000 0000 0000 0000 0000 0000 0000
 		term = w_top << cand_index;
 
 		if (term < 0x2000000000000000) { // 0010 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
@@ -274,49 +288,49 @@ ufxd64_63_t GaussCurve::AreaPolynomialValue_x60_v63(const AreaSplineCoefs& cf, u
 	fxd64_60_t res_bot = 0;
 
 	// Splitting x
-	const fxd64_28_t x_top = (x & FxdMath::MASK_32_TOP) >> 32;
-	const fxd64_60_t x_bot = x & FxdMath::MASK_32_BOT;
+	const fxd64_28_t x_top = (x & FxdMath::MASK_64_32_TOP) >> 32;
+	const fxd64_60_t x_bot = x & FxdMath::MASK_64_32_BOT;
 
 	// STEP 1 -- c1*x
-	fxd64_28_t c1_top = cf.c1 & FxdMath::MASK_32_TOP;
+	fxd64_28_t c1_top = cf.c1 & FxdMath::MASK_64_32_TOP;
 	c1_top = c1_top >> 32;
-	fxd64_60_t c1_bot = cf.c1 & FxdMath::MASK_32_BOT;
+	fxd64_60_t c1_bot = cf.c1 & FxdMath::MASK_64_32_BOT;
 	res = ((c1_top * x_top) << 4) + ((c1_top * x_bot) >> 28) + ((c1_bot * x_top) >> 28) + ((c1_bot * x_bot) >> 60);
 
 	// STEP 2 -- c1*x + c2
 	res = res + cf.c2;
 
 	// STEP 3 -- (c1*x + c2)*x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 4 -- (c1*x + c2)*x+c3
 	res = res + cf.c3;
 
 	// STEP 5 -- ((c1*x + c2)*x+c3)*x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 6 -- ((c1*x + c2)*x+c3)*x+c4
 	res = res + cf.c4;
 
 	// STEP 7 -- (((c1*x + c2)*x+c3)*x+c4)*x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 8 -- (((c1*x + c2)*x+c3)*x+c4)*x+c5
 	res = res + cf.c5;
 
 	// STEP 9 -- ((((c1*x + c2)*x+c3)*x+c4)*x+c5)*x
-	res_top = res & FxdMath::MASK_32_TOP;
+	res_top = res & FxdMath::MASK_64_32_TOP;
 	res_top = res_top >> 32;
-	res_bot = res & FxdMath::MASK_32_BOT;
+	res_bot = res & FxdMath::MASK_64_32_BOT;
 	res = ((res_top * x_top) << 4) + ((res_top * x_bot) >> 28) + ((res_bot * x_top) >> 28) + ((res_bot * x_bot) >> 60);
 
 	// STEP 10 -- ((((c1*x + c2)*x+c3)*x+c4)*x+c5)*x+c6
@@ -328,10 +342,10 @@ ufxd64_63_t GaussCurve::AreaPolynomialValue_x60_v63(const AreaSplineCoefs& cf, u
 	// res at this point is non-negative. All terms in the sum are non-negative.
 	// We use new unsigned variable to store 63 bit precision.
 	// Note that shifts are modified to produce 63 bit precision result instead of 60 bit.
-	ufxd64_63_t res_top_unsigned = (res & FxdMath::MASK_32_TOP) >> 32;
-	ufxd64_63_t res_bot_unsigned = res & FxdMath::MASK_32_BOT;
-	ufxd64_63_t x_top_unsigned = (x & FxdMath::MASK_32_TOP) >> 32;
-	ufxd64_63_t x_bot_unsigned = x & FxdMath::MASK_32_BOT;
+	ufxd64_63_t res_top_unsigned = (res & FxdMath::MASK_64_32_TOP) >> 32;
+	ufxd64_63_t res_bot_unsigned = res & FxdMath::MASK_64_32_BOT;
+	ufxd64_63_t x_top_unsigned = (x & FxdMath::MASK_64_32_TOP) >> 32;
+	ufxd64_63_t x_bot_unsigned = x & FxdMath::MASK_64_32_BOT;
 	ufxd64_63_t res_unsigned =
 		((res_top_unsigned * x_top_unsigned) << 7) +
 		((res_top_unsigned * x_bot_unsigned) >> 25) +
@@ -357,7 +371,7 @@ ufxd32_32_t GaussCurve::Average_x60_v32_debug_short(ufxd64_60_t left, ufxd64_60_
 	// Now we divide the area by the interval width
 	ufxd64_60_t width = right - left;
 	const ufxd64_28_t w_top = width >> 32;
-	const ufxd64_60_t w_bot = width & FxdMath::MASK_32_BOT;
+	const ufxd64_60_t w_bot = width & FxdMath::MASK_64_32_BOT;
 
 	// We divide in a manner similar to finding the square root.
 	// We use following relation
@@ -429,7 +443,7 @@ ufxd32_32_t GaussCurve::Average_x60_v32_debug(ufxd64_60_t left, ufxd64_60_t righ
 	// Now we divide the area by the interval width
 	ufxd64_60_t width = right - left;
 	const ufxd64_28_t w_top = width >> 32;
-	const ufxd64_60_t w_bot = width & FxdMath::MASK_32_BOT;
+	const ufxd64_60_t w_bot = width & FxdMath::MASK_64_32_BOT;
 
 	// We divide in a manner similar to finding the square root.
 	// We use following relation

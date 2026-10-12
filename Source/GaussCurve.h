@@ -125,13 +125,13 @@ private:
 	/// <summary>
 	/// This is x cutoff value for 16 bit fractional precision x values.
 	/// 443266 = 0110.[1100 0011 1000 0010] = 6.[50050] ~ 6.7637
-	/// This is last x value that would not return 0.
+	/// This is the last x value that will not return 0.
 	/// </summary>
 	static constexpr ufxd32_16_t X_CUTOFF_VAL_16 = 443266;
 
 	/// <summary>
 	/// This is x cutoff value for 60 bit fractional precision x values.
-	/// This is last x value that would not return 0.
+	/// This is the last x value that will not return 0.
 	/// </summary>
 	static constexpr ufxd64_60_t X_CUTOFF_VAL_60 = 7798021677424194372;
 
@@ -188,7 +188,7 @@ public:
 	/// </summary>
 	/// <param name="x"> -- 32 bit fixed precision.</param>
 	/// <returns>Function value 32 bit fixed precision.</returns>
-	static ufxd32_32_t Value_x32_v32(ufxd32_32_t x) {
+	static ufxd32_32_t Value_x32_v32(ufxd64_32_t x) {
 		return Value_x60_v32(static_cast<ufxd64_60_t>(x) << 28);
 	}
 
@@ -196,7 +196,7 @@ public:
 	/// Value of the curve at point x.
 	/// If x is 0, then 0 is returned (instead of number that represents 1.0) 
 	/// because 1 cannot be represented with 32 bit precision by 32 bit number.
-	/// This is a highest resolution version of x and g(x).
+	/// ** This is a highest resolution version of x and g(x). **
 	/// </summary>
 	/// <param name="x"> -- 60 bit fixed precision.</param>
 	/// <returns>Function value 32 bit fixed precision.</returns>

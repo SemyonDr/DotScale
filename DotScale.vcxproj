@@ -149,7 +149,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Libraries\libjpeg-turbo-2.1.x_x64-static-mt-msvc142-platf10.0.19041.0\include;.\Libraries\libpng-1.6.40_x64-static-md-msvc142-platf10.0.19041.0\include;.\Libraries\tbb_x64-windows\include;.\Libraries\;.\Libraries\exiv2-0.28.0_x64-static-md-msvc142-platf10.0.19041.0\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -169,6 +169,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Blurer.cpp" />
     <ClCompile Include="Source\DotScale.cpp" />
     <ClCompile Include="Source\Downscaler.cpp" />
     <ClCompile Include="Source\GammaConverter.cpp" />
@@ -185,12 +186,15 @@
     <ClCompile Include="Source\PngWriter.cpp" />
     <ClCompile Include="Source\Printer.cpp" />
     <ClCompile Include="Source\Stopwatch.cpp" />
+    <ClCompile Include="Source\Tester_Blur.cpp" />
     <ClCompile Include="Source\Tester_DS.cpp" />
     <ClCompile Include="Source\Tester_Gauss.cpp" />
     <ClCompile Include="Source\Tester_IO.cpp" />
     <ClCompile Include="Source\Tester_Base.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Options.h" />
+    <ClInclude Include="Source\Blurer.h" />
     <ClInclude Include="Source\FixedFraction.h" />
     <ClInclude Include="Source\FixedMath.h" />
     <ClInclude Include="Source\FixedMathTypes.h" />
@@ -224,6 +228,7 @@
     <ClInclude Include="Source\Printer.h" />
     <ClInclude Include="Source\SliceProcessor.h" />
     <ClInclude Include="Source\Stopwatch.h" />
+    <ClInclude Include="Source\Tester_Blur.h" />
     <ClInclude Include="Source\Tester_DS.h" />
     <ClInclude Include="Source\Tester_Gamma.h" />
     <ClInclude Include="Source\Tester_Gauss.h" />
