@@ -1,0 +1,5 @@
+E:/Projects/DotScale2/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+E:/Projects/DotScale2/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
+E:/Projects/DotScale2/out/build/x64-Debug/dotscale_core/CMakeFiles/dotscale_core.dir
+E:/Projects/DotScale2/out/build/x64-Debug/dotscale_core/CMakeFiles/edit_cache.dir
+E:/Projects/DotScale2/out/build/x64-Debug/dotscale_core/CMakeFiles/rebuild_cache.dir

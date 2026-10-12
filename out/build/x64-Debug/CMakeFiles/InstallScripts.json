@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"E:/Projects/DotScale2/out/build/x64-Debug/cmake_install.cmake",
+		"E:/Projects/DotScale2/out/build/x64-Debug/dotscale_core/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

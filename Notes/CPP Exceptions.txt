@@ -1,9 +1,0 @@
-------------------------
-CPP EXCEPTIONS
-------------------------
-
-Standart Exceptions
-
-Exception                   Header			Description
-std::invalid_argument()     <stdexcept>	    Throw when argument passed to a function is not valid.
-std::runtime_error()		<stdexcept>		Throw when some user data that predictably can be invalid is given.		
