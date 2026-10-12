@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 4.1.2)
 
-set(PROJECT_NAME dotscale)
+project(dotscale LANGUAGES CXX)
 
-project(${PROJECT_NAME} LANGUAGES CXX)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+	"${CMAKE_SOURCE_DIR}/out/bin-${CMAKE_BUILD_TYPE}"
+)
 
-add_subdirectory(${PROJECT_NAME}_core)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+    "${CMAKE_BINARY_DIR}/lib"
+)
+
+
+add_subdirectory(dotscale_core)

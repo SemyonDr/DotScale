@@ -8,7 +8,7 @@ namespace dotscale {
 
 
 /// Layout of the data in an image pixel.
-enum PixelLayout {
+enum class PixelLayout {
 	G,		//Grayscale
 	GA,		//Grayscale + Alpha
 	RGB,	//Red-Green-Blue
@@ -25,15 +25,15 @@ constexpr int pixel_cmp_count(PixelLayout layout) {
 		case PixelLayout::RGBA: return 4;
 	}
 
-	return 0;
+	std::unreachable(); // c++23
 }
 
 
 /// Bit depth of a color component of a pixel.
 enum class BitDepth {
-	BD_8_BIT = 8,
-	BD_16_BIT = 16,
-	BD_32_BIT = 32
+	BD_8_BIT,
+	BD_16_BIT,
+	BD_32_BIT
 };
 
 
@@ -45,7 +45,7 @@ enum class GammaProfile {
 
 
 /// Image file formats known to this app.
-enum FileFormat {
+enum class FileFormat {
 	Unsupported,
 	JPEG,
 	PNG
