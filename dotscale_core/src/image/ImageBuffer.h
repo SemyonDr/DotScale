@@ -13,6 +13,18 @@
 
 namespace dotscale {
 
+//--------------------------------
+//	FUNCTIONS REQUIRED 
+//  BY THE TEMPLATE
+//--------------------------------
+
+namespace helper {
+	uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue);
+	uint16_t rgb_to_g_uint16(const uint16_t red, const uint16_t green, const uint16_t blue);
+	uint32_t rgb_to_g_uint32(const uint32_t red, const uint32_t green, const uint32_t blue);
+	float rgb_to_g_float(const float red, const float green, const float blue);
+}
+
 
 /// Object that stores an image as two dimensional array of pixels.
 /// Pixel data is not incapsulated and maintaining consistency is a responsibiliy of the user.
@@ -31,10 +43,8 @@ public:
 	/// Layout of the data in an image pixel.
 	PixelLayout get_layout() const noexcept;
 
-
 	/// Height of the image in pixels.
 	std::size_t get_height() const noexcept;
-
 
 	/// Width of the image in pixels.
 	std::size_t get_width() const noexcept;
@@ -44,12 +54,10 @@ public:
 
 	/// Number of components in a pixel.
 	int get_num_cmp() const noexcept;
-	
 
 	/// If this image layout has alpha channel.
 	bool has_alpha() const noexcept;
 	
-
 	/// Rows per continuous memory block.
 	std::size_t get_rows_per_block() const noexcept;
 
@@ -60,7 +68,7 @@ public:
 
 	///Image data.
 	///Array of rows of pixel samples that ordered according to image layout.
-	T** get_data_ptr() const noexcept;
+	T* const * get_data_ptr() const noexcept;
 
 
 	//--------------------------------
@@ -87,7 +95,7 @@ public:
 	
 	/// Inserts lines of an image into this buffer starting at a specified line.
 	/// Widths and layouts must match.
-	void insert_at(ImageBuffer<T, TMin, TMax, rgb_to_g>& image, int line);
+	void insert_at(const ImageBuffer<T, TMin, TMax, rgb_to_g>& image, int line);
 
 	
 	/// Inserts given image into this image starting at the first line.
@@ -128,21 +136,19 @@ public:
 	/// .Clone() method should be used.
 	ImageBuffer<T, TMin, TMax, rgb_to_g>& operator=(ImageBuffer<T, TMin, TMax, rgb_to_g>& other) = delete;
 
-
+	/// Move is default.
+	ImageBuffer(ImageBuffer<T, TMin, TMax, rgb_to_g>&& other) noexcept = default;
+	ImageBuffer<T, TMin, TMax, rgb_to_g>& operator=(ImageBuffer<T, TMin, TMax, rgb_to_g>&& other) noexcept = default;
 
 	//--------------------------------
 	//	OPERATORS
 	//--------------------------------
 	
 	/// Row pointers are accessible by index.
-	inline T* operator[](std::size_t row) {
+	inline T* operator[](std::size_t row) const noexcept {
 		return _row_ptrs[row];
 	}
 
-	/// Row pointers are accessible by index.
-	inline const T* operator[](std::size_t row) const {
-		return _row_ptrs[row];
-	}
 
 
 private:
@@ -150,6 +156,8 @@ private:
 	/// Templated implementation of the reshape() function.
 	template<PixelLayout src_layout, PixelLayout trg_layout>
 	ImageBuffer<T, TMin, TMax, rgb_to_g> reshape_templ(int height, int width) const;
+
+
 
 protected:
 
@@ -164,8 +172,8 @@ protected:
 	//--------------------------------
 	
 	PixelLayout _layout;
-	int _height;
-	int _width;
+	std::size_t _height;
+	std::size_t _width;
 
 	//--------------------------------
 	//	ACTUAL DATA
@@ -184,20 +192,15 @@ protected:
 //	TEMPLATE ALIASES AND EXTERN
 //--------------------------------
 
-uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue);
-uint16_t rgb_to_g_uint16(const uint16_t red, const uint16_t green, const uint16_t blue);
-uint32_t rgb_to_g_uint32(const uint32_t red, const uint32_t green, const uint32_t blue);
-float rgb_to_g_float(const float red, const float green, const float blue);
+extern template class ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
+extern template class ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
+extern template class ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
+extern template class ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
 
-extern template class ImageBuffer < uint8_t, 0, 255, &rgb_to_g_uint8 >;
-extern template class ImageBuffer<uint16_t, 0, 65535, &rgb_to_g_uint16>;
-extern template class ImageBuffer<uint32_t, 0, 4294967295, &rgb_to_g_uint32>;
-extern template class ImageBuffer<float, 0.0f, 1.0f, &rgb_to_g_float>;
-
-using ImageBuffer_uint8 = ImageBuffer < uint8_t, 0, 255, &rgb_to_g_uint8 >;
-using ImageBuffer_uint16 = ImageBuffer<uint16_t, 0, 65535, &rgb_to_g_uint16>;
-using ImageBuffer_uint32 = ImageBuffer<uint32_t, 0, 4294967295, &rgb_to_g_uint32>;
-using ImageBuffer_float = ImageBuffer<float, 0.0f, 1.0f, &rgb_to_g_float>;
+using ImageBuffer_uint8 = ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
+using ImageBuffer_uint16 = ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
+using ImageBuffer_uint32 = ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
+using ImageBuffer_float = ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
 
 
 

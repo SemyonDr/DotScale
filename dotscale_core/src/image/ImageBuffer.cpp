@@ -62,7 +62,7 @@ std::size_t ImageBuffer<T, TMin, TMax, rgb_to_g>
 ///Image data.
 ///Array of rows of pixel samples that ordered according to image layout.
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
-T** ImageBuffer<T, TMin, TMax, rgb_to_g>
+T* const * ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::get_data_ptr() const noexcept { return _row_ptrs.data(); }
 
 
@@ -87,8 +87,8 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::clone() const {
 	ImageBuffer<T, TMin, TMax, rgb_to_g> copy(_height, _width, _layout);
 
-	T** cpy_data = copy.get_data_ptr();
-	T** this_data = this->get_data_ptr();
+	T* const* cpy_data = copy.get_data_ptr();
+	T* const* this_data = this->get_data_ptr();
 
 	for (int row = 0; row < _height; row++)
 		for (int cmp = 0; cmp < get_cmp_width(); cmp++)
@@ -139,6 +139,8 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 			return trg_image;
 		}
 	}
+
+	std::unreachable();
 }
 
 
@@ -148,7 +150,7 @@ template<PixelLayout src_layout, PixelLayout trg_layout>
 ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::reshape_templ(int height, int width) const {
 
-	ImageBuffer<T, TMin, TMax, rgb_to_g> trg_image(height, width, layout);
+	ImageBuffer<T, TMin, TMax, rgb_to_g> trg_image(height, width, trg_layout);
 
 	// Layout details
 	constexpr int src_cmp_count = pixel_cmp_count(src_layout);
@@ -166,7 +168,7 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 
 	for (int row = 0; row < std::min(src_height, trg_height); row++) {
 		T* src_row = this->_row_ptrs[row];
-		T* trg_row = trg_image.get_data_ptr[row];
+		T* trg_row = trg_image[row];
 		// Step one - copy existing columns of each row
 		for (int px = 0; px < std::min(src_width, trg_width); px++) {
 			// Color
@@ -198,9 +200,9 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 			// else -- We maybe can blend alpha instead of dropping it, but this needs to be decided...
 		}
 		// Step two - fill added columns with zeroes
-		for (int px = copy_width; px < trg_width; px++) {
+		for (int px = std::min(src_width, trg_width); px < trg_width; px++) {
 			if constexpr (trg_gray)
-				trg_data[row][px * trg_cmp_count + 0] = TMin;
+				trg_row[px * trg_cmp_count + 0] = TMin;
 			else {
 				trg_row[px * trg_cmp_count + 0] = TMin;
 				trg_row[px * trg_cmp_count + 1] = TMin;
@@ -211,10 +213,11 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 		}
 	}
 	// Step three - fill added rows with zeroes
-	for (int row = copy_height; row < trg_height; row++) {
+	for (int row = std::min(src_height, trg_height); row < trg_height; row++) {
+		T* trg_row = trg_image[row];
 		for (int px = 0; px < trg_width; px++) {
 			if constexpr (trg_gray)
-				trg_row[row][px * trg_cmp_count + 0] = TMin;
+				trg_row[px * trg_cmp_count + 0] = TMin;
 			else {
 				trg_row[px * trg_cmp_count + 0] = TMin;
 				trg_row[px * trg_cmp_count + 1] = TMin;
@@ -293,17 +296,17 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 /// Widths and layouts must match.
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 void ImageBuffer<T, TMin, TMax, rgb_to_g>
-::insert_at(ImageBuffer<T, TMin, TMax, rgb_to_g>& image, int line) {
+::insert_at(const ImageBuffer<T, TMin, TMax, rgb_to_g>& image, int line) {
 
 	// Checks
 	if (this->_width != image._width || this->_layout != image._layout)
 		throw new std::exception("Trying to combine images with mismatching shapes.");
-	if (line > _heigth || line < 0)
+	if (line > _height || line < 0)
 		throw new std::exception("Insertion line index out of range.");
 
 	// Allocating new blocks to accomodate inserted image and copying data
 	int num_blocks = (image._height + _rows_per_block - 1) / _rows_per_block;
-	std::vector<unique_ptr<T[]>> new_blocks(num_blocks);
+	std::vector<std::unique_ptr<T[]>> new_blocks(num_blocks);
 	std::vector<T*> new_line_ptrs(image._height);
 	std::size_t cmp_width = get_cmp_width();
 	for (int i = 0, row = 0; i < image._height; i++) {
@@ -314,7 +317,7 @@ void ImageBuffer<T, TMin, TMax, rgb_to_g>
 		for (int blrow = 0; blrow < block_height; blrow++, row++) {
 			T* row_ptr = block_ptr + blrow * cmp_width;
 			new_line_ptrs[row] = row_ptr;
-			T* src_row_ptr = image[row];
+			const T* src_row_ptr = image[row];
 			for (int cmp = 0; cmp < cmp_width; cmp++)
 				row_ptr[cmp] = src_row_ptr[cmp];
 		}
@@ -347,7 +350,7 @@ void ImageBuffer<T, TMin, TMax, rgb_to_g>
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 void ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::prepend(const ImageBuffer<T, TMin, TMax, rgb_to_g>& image) {
-	InsertAtLine(image, 0);
+	insert_at(image, 0);
 }
 
 
@@ -356,7 +359,7 @@ void ImageBuffer<T, TMin, TMax, rgb_to_g>
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 void ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::append(const ImageBuffer<T, TMin, TMax, rgb_to_g>& image) {
-	InsertAtLine(image, _height);
+	insert_at(image, _height);
 }
 
 
@@ -398,7 +401,7 @@ ImageBuffer<T, TMin, TMax, rgb_to_g>
 	const int num_blocks = (_height + _rows_per_block - 1) / _rows_per_block;
 
 	_blocks = std::vector<std::unique_ptr<T[]>>(num_blocks);
-	_row_ptrs = std::vector<T*>(_heigth);
+	_row_ptrs = std::vector<T*>(_height);
 
 	const int cmp_width = get_cmp_width();
 	for (int i = 0, row = 0; i < height; i++) {
@@ -421,50 +424,53 @@ ImageBuffer<T, TMin, TMax, rgb_to_g>
 //	TEMPLATE FUNCTIONS
 //--------------------------------
 
-/// Averages 3 color components of a pixel.
-uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue) {
-	uint16_t avg = static_cast<uint16_t>(red);
-	avg += static_cast<uint16_t>(green);
-	avg += static_cast<uint16_t>(blue);
-	return static_cast<uint8_t>(avg / 3);
-}
+namespace helper {
+
+	/// Averages 3 color components of a pixel.
+	uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue) {
+		uint16_t avg = static_cast<uint16_t>(red);
+		avg += static_cast<uint16_t>(green);
+		avg += static_cast<uint16_t>(blue);
+		return static_cast<uint8_t>(avg / 3);
+	}
 
 
-/// Averages 3 color components of a pixel.
-uint16_t rgb_to_g_uint16(const uint16_t red, const uint16_t green, const uint16_t blue) {
-	uint32_t avg = static_cast<uint32_t>(red);
-	avg += static_cast<uint32_t>(green);
-	avg += static_cast<uint32_t>(blue);
-	return static_cast<uint16_t>(avg / 3);
-}
+	/// Averages 3 color components of a pixel.
+	uint16_t rgb_to_g_uint16(const uint16_t red, const uint16_t green, const uint16_t blue) {
+		uint32_t avg = static_cast<uint32_t>(red);
+		avg += static_cast<uint32_t>(green);
+		avg += static_cast<uint32_t>(blue);
+		return static_cast<uint16_t>(avg / 3);
+	}
 
 
-/// Averages 3 color components of a pixel.
-uint32_t rgb_to_g_uint32(const uint32_t red, const uint32_t green, const uint32_t blue) {
-	uint64_t avg = static_cast<uint64_t>(red);
-	avg += static_cast<uint64_t>(green);
-	avg += static_cast<uint64_t>(blue);
-	return static_cast<uint32_t>(avg / 3);
-}
+	/// Averages 3 color components of a pixel.
+	uint32_t rgb_to_g_uint32(const uint32_t red, const uint32_t green, const uint32_t blue) {
+		uint64_t avg = static_cast<uint64_t>(red);
+		avg += static_cast<uint64_t>(green);
+		avg += static_cast<uint64_t>(blue);
+		return static_cast<uint32_t>(avg / 3);
+	}
 
 
-/// Averages 3 color components of a pixel.
-float rgb_to_g_float(const float red, const float green, const float blue) {
-	float avg = red;
-	avg += green;
-	avg += blue;
-	return avg / 3.0f;
-}
+	/// Averages 3 color components of a pixel.
+	float rgb_to_g_float(const float red, const float green, const float blue) {
+		float avg = red;
+		avg += green;
+		avg += blue;
+		return avg / 3.0f;
+	}
 
+} // namespace helper
 
 //--------------------------------
 //	TEMPLATE INSTANTIATION
 //--------------------------------
 
-template class ImageBuffer < uint8_t, 0, 255, &rgb_to_g_uint8 >;
-template class ImageBuffer<uint16_t, 0, 65535, &rgb_to_g_uint16>;
-template class ImageBuffer<uint32_t, 0, 4294967295, &rgb_to_g_uint32>;
-template class ImageBuffer<float, 0.0f, 1.0f, &rgb_to_g_float>;
+template class ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
+template class ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
+template class ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
+template class ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
 
 
 } // namespace dotscale
