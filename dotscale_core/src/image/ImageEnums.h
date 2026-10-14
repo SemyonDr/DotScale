@@ -4,6 +4,8 @@
 	Definitions used for describing image objects.
 */
 
+#include <utility>
+
 namespace dotscale {
 
 
@@ -28,6 +30,28 @@ constexpr int pixel_cmp_count(PixelLayout layout) {
 	std::unreachable(); // c++23
 }
 
+/// Checks if given pixel layout has alpha channel
+constexpr bool layout_has_alpha(PixelLayout layout) {
+	switch (layout) {
+		case PixelLayout::G: return false;
+		case PixelLayout::GA: return true;
+		case PixelLayout::RGB: return false;
+		case PixelLayout::RGBA: return true;
+	}
+
+	std::unreachable(); // c++23
+}
+
+constexpr bool layout_is_gray(PixelLayout layout) {
+	switch (layout) {
+		case PixelLayout::G: return true;
+		case PixelLayout::GA: return true;
+		case PixelLayout::RGB: return false;
+		case PixelLayout::RGBA: return false;
+	}
+
+	std::unreachable(); // c++23
+}
 
 /// Bit depth of a color component of a pixel.
 enum class BitDepth {
