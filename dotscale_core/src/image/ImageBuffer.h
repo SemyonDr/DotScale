@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>
+#include <variant>
 
 #include "ImageEnums.h"
 
@@ -18,7 +19,7 @@ namespace dotscale {
 //  BY THE TEMPLATE
 //--------------------------------
 
-namespace helper {
+namespace image_buffer_utils {
 	uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue);
 	uint16_t rgb_to_g_uint16(const uint16_t red, const uint16_t green, const uint16_t blue);
 	uint32_t rgb_to_g_uint32(const uint32_t red, const uint32_t green, const uint32_t blue);
@@ -192,17 +193,17 @@ protected:
 //	TEMPLATE ALIASES AND EXTERN
 //--------------------------------
 
-extern template class ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
-extern template class ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
-extern template class ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
-extern template class ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
+extern template class ImageBuffer < uint8_t, 0, 255, &image_buffer_utils::rgb_to_g_uint8 >;
+extern template class ImageBuffer<uint16_t, 0, 65535, &image_buffer_utils::rgb_to_g_uint16>;
+extern template class ImageBuffer<uint32_t, 0, 4294967295, &image_buffer_utils::rgb_to_g_uint32>;
+extern template class ImageBuffer<float, 0.0f, 1.0f, &image_buffer_utils::rgb_to_g_float>;
 
-using ImageBuffer_uint8 = ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
-using ImageBuffer_uint16 = ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
-using ImageBuffer_uint32 = ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
-using ImageBuffer_float = ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
+using ImageBuffer_uint8 = ImageBuffer < uint8_t, 0, 255, &image_buffer_utils::rgb_to_g_uint8 >;
+using ImageBuffer_uint16 = ImageBuffer<uint16_t, 0, 65535, &image_buffer_utils::rgb_to_g_uint16>;
+using ImageBuffer_uint32 = ImageBuffer<uint32_t, 0, 4294967295, &image_buffer_utils::rgb_to_g_uint32>;
+using ImageBuffer_float = ImageBuffer<float, 0.0f, 1.0f, &image_buffer_utils::rgb_to_g_float>;
 
-
+using ImageBuffer_uintv = std::variant<ImageBuffer_uint8, ImageBuffer_uint16, ImageBuffer_uint32>;
 
 
 } // namespace dotscale

@@ -33,19 +33,19 @@ std::size_t ImageBuffer<T, TMin, TMax, rgb_to_g>
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 std::size_t ImageBuffer<T, TMin, TMax, rgb_to_g>
 ::get_cmp_width() const noexcept {
-	return _width * pixel_cmp_count(_layout);
+	return _width * util::pixel_cmp_count(_layout);
 }
 
 /// Number of components in a pixel.
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 int ImageBuffer<T, TMin, TMax, rgb_to_g>
-::get_num_cmp() const noexcept { return pixel_cmp_count(_layout); }
+::get_num_cmp() const noexcept { return util::pixel_cmp_count(_layout); }
 
 
 /// If this image layout has alpha channel.
 template <typename T, T TMin, T TMax, T(*rgb_to_g)(const T, const T, const T)>
 bool ImageBuffer<T, TMin, TMax, rgb_to_g>
-::has_alpha() const noexcept { return layout_has_alpha(_layout); }
+::has_alpha() const noexcept { return util::layout_has_alpha(_layout); }
 
 
 /// Rows per continuous memory block.
@@ -153,12 +153,12 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 	ImageBuffer<T, TMin, TMax, rgb_to_g> trg_image(height, width, trg_layout);
 
 	// Layout details
-	constexpr int src_cmp_count = pixel_cmp_count(src_layout);
-	constexpr int trg_cmp_count = pixel_cmp_count(trg_layout);
-	constexpr bool src_alpha = layout_has_alpha(src_layout);
-	constexpr bool trg_alpha = layout_has_alpha(trg_layout);
-	constexpr bool src_gray = layout_is_gray(src_layout);
-	constexpr bool trg_gray = layout_is_gray(trg_layout);
+	constexpr int src_cmp_count = util::pixel_cmp_count(src_layout);
+	constexpr int trg_cmp_count = util::pixel_cmp_count(trg_layout);
+	constexpr bool src_alpha = util::layout_has_alpha(src_layout);
+	constexpr bool trg_alpha = util::layout_has_alpha(trg_layout);
+	constexpr bool src_gray = util::layout_is_gray(src_layout);
+	constexpr bool trg_gray = util::layout_is_gray(trg_layout);
 
 	//Aliases
 	int src_height = this->_height;
@@ -240,7 +240,7 @@ ImageBuffer<T, TMin, TMax, rgb_to_g> ImageBuffer<T, TMin, TMax, rgb_to_g>
 	PixelLayout src_layout = _layout;
 	PixelLayout trg_layout = layout;
 
-	// Template instantiations
+	// Template instantiations (compile time)
 	switch (src_layout) {
 		case (PixelLayout::G):
 			switch (trg_layout) {
@@ -424,7 +424,7 @@ ImageBuffer<T, TMin, TMax, rgb_to_g>
 //	TEMPLATE FUNCTIONS
 //--------------------------------
 
-namespace helper {
+namespace image_buffer_utils {
 
 	/// Averages 3 color components of a pixel.
 	uint8_t rgb_to_g_uint8(const uint8_t red, const uint8_t green, const uint8_t blue) {
@@ -461,16 +461,16 @@ namespace helper {
 		return avg / 3.0f;
 	}
 
-} // namespace helper
+} // namespace image_buffer_utils
 
 //--------------------------------
 //	TEMPLATE INSTANTIATION
 //--------------------------------
 
-template class ImageBuffer < uint8_t, 0, 255, &helper::rgb_to_g_uint8 >;
-template class ImageBuffer<uint16_t, 0, 65535, &helper::rgb_to_g_uint16>;
-template class ImageBuffer<uint32_t, 0, 4294967295, &helper::rgb_to_g_uint32>;
-template class ImageBuffer<float, 0.0f, 1.0f, &helper::rgb_to_g_float>;
+template class ImageBuffer < uint8_t, 0, 255, &image_buffer_utils::rgb_to_g_uint8 >;
+template class ImageBuffer<uint16_t, 0, 65535, &image_buffer_utils::rgb_to_g_uint16>;
+template class ImageBuffer<uint32_t, 0, 4294967295, &image_buffer_utils::rgb_to_g_uint32>;
+template class ImageBuffer<float, 0.0f, 1.0f, &image_buffer_utils::rgb_to_g_float>;
 
 
 } // namespace dotscale
