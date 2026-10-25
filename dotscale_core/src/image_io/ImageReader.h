@@ -36,6 +36,8 @@ public:
 	///Reads next block of rows starting at NextRow.
 	virtual ImageBuffer_uintv read_next(uint32_t lines) = 0;
 
+	/// Reads all the lines that left.
+	ImageBuffer_uintv read_all() { return read_next(rows_left()); }
 
 	//--------------------------------
 	//	PUBLIC CONSTRUCTORS
