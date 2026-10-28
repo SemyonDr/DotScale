@@ -1,17 +1,16 @@
 #pragma once
-//STL
-#include <iostream>
-#include <fstream>
-//Third party
+
+#include <filesystem>
+#include <optional>
+
 #include "jpeglib.h"
 #include "jerror.h"
-//Internal
 
-#include "../image_io/IOUtil.h"
-#include "../image_io/ImageReader.h"
+#include "../image_io/ImageIO.h"
 #include "../image_io/headers/ImageHeader.h"
 #include "../image_io/headers/JpegHeader.h"
 #include "../image/ImageBuffer.h"
+#include "../image_io/ImageReader.h"
 
 namespace dotscale {
 
@@ -47,7 +46,7 @@ public:
 
 	JpegReader(
 		std::filesystem::path file_path, 
-		std::optional<io_util::CodecWarningCallback> warning_callback = std::nullopt);
+		std::optional<io_image::CodecWarningCallback> warning_callback = std::nullopt);
 
 
 	//--------------------------------
@@ -70,34 +69,19 @@ private:
 
 
 	//--------------------------------
-	//	ERROR/WARNING HANDLERS
-	//--------------------------------
-
-	/// Called when libjpeg routines encounter non-fatal error, or corrupt data and are able to continue.
-	/// Redirects to user-supplied callback.
-	static void _warning_handler(j_common_ptr jpeg_object, int msg_level);
-
-
-	///Callback used when libjpeg decoding routines encounter fatal error and are terminated.
-	///Throws an exception containing libjpeg error message.
-	static void _error_exit_handler(j_common_ptr jpeg_object);
-
-
-	//--------------------------------
 	//	PRIVATE DATA
 	//--------------------------------
 
-	/* Please do not change the order of header fields
+	/* Do not change the order of header fields
 	   or this will break the initialization.
 	   This order determines order of execution of init list
 	   of the constructor.
 	   common header depends on jpeg header
 	   jpeg depends on init()
 	   init() depends on warning callback
-
 	*/
 	
-	std::optional<io_util::CodecWarningCallback> _warning_callback;
+	std::optional<io_image::CodecWarningCallback> _warning_callback;
 	JpegHeader _jpeg_header;
 	ImageHeader _image_header;
 

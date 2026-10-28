@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../image_io/IOUtil.h"
+#include "../../image_io/ImageIO.h"
 #include "../../image/ImageEnums.h"
 #include "../../image_io/headers/JpegHeader.h"
 #include "../../image_io/headers/PngHeader.h"
@@ -38,11 +38,11 @@ public:
 
 
 	/// Converts from jpeg header.
-	ImageHeader static from_jpeg(JpegHeader& jpeg_header)  {
+	ImageHeader static from_jpeg(const JpegHeader& jpeg_header)  {
 		return ImageHeader(
 			jpeg_header.get_height(),
 			jpeg_header.get_width(),
-			jpeg_util::jpeg_colorspace_to_storage(jpeg_header.get_colorspace()),
+			io_jpeg::jpeg_colorspace_to_storage(jpeg_header.get_colorspace()),
 			BitDepth::BD_8_BIT
 		);
 	}

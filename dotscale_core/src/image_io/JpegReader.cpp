@@ -16,13 +16,23 @@ ImageBuffer_uintv JpegReader::read_next(uint32_t lines) {
 	//----------------------------------------------------------------------
 	// 1 - Arguments check
 
+	// If reading has failed
+	if (_state == ReaderState::Failed)
+		throw codec_fatal_exception(
+			CodecExceptionType::Jpeg_DecodingError, 
+			"Trying to read after the reader has failed.");
+
 	// If reading has finished
 	if (_state == ReaderState::Finished)
-		throw codec_fatal_exception(CodecExceptionType::Jpeg_DecodingError, "Trying to read after the reader has finished.");
+		throw codec_fatal_exception(
+			CodecExceptionType::Jpeg_DecodingError, 
+			"Trying to read after the reader has finished.");
 
 	// If we have enough rows
 	if (_next_row + lines > _height)
-		throw codec_fatal_exception(CodecExceptionType::Jpeg_DecodingError, "Trying to read past the last line.");
+		throw codec_fatal_exception(
+			CodecExceptionType::Jpeg_DecodingError, 
+			"Trying to read past the last line.");
 
 	//----------------------------------------------------------------------
 	// 2 - Decompressing the image
@@ -53,6 +63,7 @@ ImageBuffer_uintv JpegReader::read_next(uint32_t lines) {
 	catch (codec_fatal_exception e) { // Will be thrown by error_exit callback if something goes wrong
 		jpeg_destroy_decompress(&_jpeg_decomp);
 		fclose(_c_file_handle);
+		_state = ReaderState::Failed;
 		throw; //rethrowing
 	}
 
@@ -91,9 +102,9 @@ void JpegReader::_init_decompressor() {
 	//Assigning error manager to decompressor
 	_jpeg_decomp.err = jpeg_std_error(&_jerr_decomp);
 	//Registering jpeg error handler
-	_jerr_decomp.error_exit = &_error_exit_handler;
+	_jerr_decomp.error_exit = &io_jpeg::libjpeg_error_exit_handler;
 	//Registering warning handler function
-	_jerr_decomp.emit_message = &_warning_handler;
+	_jerr_decomp.emit_message = &io_jpeg::libjpeg_warning_handler;
 	//Initializing decompressor object
 	jpeg_create_decompress(&_jpeg_decomp);
 
@@ -109,45 +120,42 @@ void JpegReader::_init_decompressor() {
 /// Reads jpeg header.
 JpegHeader JpegReader::_read_header() {
 	//Reading JPEG header to get the image info.
-	//If error is encountered ErrorExitHandler will be called.
 	try {
 		jpeg_read_header(&_jpeg_decomp, TRUE);
 	}
 	catch (codec_fatal_exception e) {
 		fclose(_c_file_handle);
 		jpeg_destroy_decompress(&_jpeg_decomp);
+		_state = ReaderState::Failed;
 		throw;
 	}
 
 	//Jpeg header object
 
 	// Extracting quantization tables
-	JpegHeader::QuantTables quant_tables{};
-	for (int i = 0; i < NUM_QUANT_TBLS; i++) {
-		const auto* src_tbl = _jpeg_decomp.quant_tbl_ptrs[i];
+	io_jpeg::Quantization quantization;
+	for (int cmp = 0; cmp < _jpeg_decomp.num_components; cmp++) {
+		int tbl_index = _jpeg_decomp.comp_info[cmp].quant_tbl_no;
+		const uint16_t* src_tbl = _jpeg_decomp.quant_tbl_ptrs[tbl_index]->quantval;
+		quantization.map[cmp] = tbl_index;
 
-		if (src_tbl != NULL) {
-			JpegHeader::QuantTable table{};
-
-			for (int j = 0; j < DCTSIZE2; j++)
-				table[j] = src_tbl->quantval[j];
-			quant_tables[i] = table;
-		}
+		for (int i = 0; i < DCTSIZE2; i++)
+			quantization.tables[cmp][i] = src_tbl[i];
 	}
 
 	// Extracting subchroma sampling
-	JpegHeader::ComponentSampling chroma_sampling{};
+	io_jpeg::ComponentSampling cmp_sampling{};
 	for (int i = 0; i < _jpeg_decomp.num_components; i++) {
-		chroma_sampling[i] = {
+		cmp_sampling[i] = {
 			_jpeg_decomp.comp_info[i].h_samp_factor,
 			_jpeg_decomp.comp_info[i].v_samp_factor
 		};
 	}
 
-	// Extracting JFIF Density
-	std::optional<JpegHeader::JfifDensity> jfif_density;
+	// Extracting JFIF Density if present
+	std::optional<io_jpeg::JfifDensity> jfif_density;
 	if (_jpeg_decomp.saw_JFIF_marker) {
-		jfif_density = JpegHeader::JfifDensity{
+		jfif_density = io_jpeg::JfifDensity{
 			.unit = _jpeg_decomp.density_unit,
 			.x_density = _jpeg_decomp.X_density,
 			.y_density = _jpeg_decomp.Y_density
@@ -159,8 +167,8 @@ JpegHeader JpegReader::_read_header() {
 		_jpeg_decomp.image_width,
 		_jpeg_decomp.jpeg_color_space,
 		_jpeg_decomp.progressive_mode,
-		quant_tables,
-		chroma_sampling,
+		cmp_sampling,
+		quantization,
 		jfif_density
 	);
 }
@@ -175,8 +183,8 @@ JpegHeader JpegReader::_read_header() {
 
 
 /// Opens JPEG file, reads header and prepares reader for block reading.
-JpegReader::JpegReader(std::filesystem::path file_path, std::optional<io_util::CodecWarningCallback> warning_callback)
-	: ImageReader(file_path), 
+JpegReader::JpegReader(std::filesystem::path file_path, std::optional<io_image::CodecWarningCallback> warning_callback)
+	: ImageReader(file_path),
 	_warning_callback(warning_callback),
 	_jpeg_header((
 			_init_decompressor(),
@@ -218,46 +226,6 @@ JpegReader::~JpegReader() {
 		_state = ReaderState::Finished;
 	}
 }
-
-
-
-//--------------------------------
-//	ERROR/WARNING HANDLERS
-//--------------------------------
-
-/// Called when libjpeg routines encounter non-fatal error, or corrupt data and are able to continue.
-/// Redirects to user-supplied callback.
-void JpegReader::_warning_handler(j_common_ptr jpeg_object, int msg_level) {
-	// No-warning setting
-	if (msg_level != -1)
-		return;
-
-	// Extracting callback data from jpeg object
-	auto* warning_callback = static_cast<io_util::CodecWarningCallback*>(jpeg_object->client_data);
-
-	// Checking if the callback was set
-	if (warning_callback == NULL || warning_callback->func == nullptr)
-		return;
-
-	// Formatting libjpeg warning message
-	char msg[JMSG_LENGTH_MAX];
-	jpeg_object->err->format_message(jpeg_object, msg);
-
-	// Passing to user-defined function
-	warning_callback->func(std::string(msg), warning_callback->arg);
-}
-
-
-///Callback used when libjpeg decoding routines encounter fatal error and are terminated.
-///Throws an exception containing libjpeg error message.
-void JpegReader::_error_exit_handler(j_common_ptr jpeg_object) {
-	// Formatting libjpeg warning message
-	char msg[JMSG_LENGTH_MAX];
-	jpeg_object->err->format_message(jpeg_object, msg);
-	//Throwing
-	throw codec_fatal_exception(CodecExceptionType::Jpeg_DecodingError, msg);
-}
-
 
 
 } // namespace dotscale

@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 
+#include "../image_io/ImageIO.h"
 #include "../image/ImageBuffer.h"
 #include "../image_io/headers/ImageHeader.h"
 
@@ -70,7 +71,8 @@ protected:
 	enum class WriterState {
 		Uninitialized,
 		Ready,
-		Finished
+		Finished,
+		Failed
 	};
 
 	//--------------------------------

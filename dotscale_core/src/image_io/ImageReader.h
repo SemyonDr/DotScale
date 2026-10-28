@@ -68,6 +68,7 @@ protected:
 		Uninitialized,		// Initial state - file closed, decompressor not initialized, header data is not available
 		Ready,				// File is open, decompressor initialized, set and ready to read the file.
 		Finished,			// File is closed, decompressor not initialized, header data is accessible, no lines left to read
+		Failed				// Something went wrong and resources were released.
 	};
 
 	//--------------------------------

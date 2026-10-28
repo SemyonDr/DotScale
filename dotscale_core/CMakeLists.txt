@@ -6,7 +6,7 @@ add_library(dotscale_core STATIC
 	src/image/ImageBuffer.cpp
 	src/image/ImageEnums.h
 
-	src/image_io/IOUtil.h
+	src/image_io/ImageIO.h
 	src/image_io/headers/ImageHeader.h
 	src/image_io/headers/PngHeader.h
 	src/image_io/headers/JpegHeader.h
@@ -16,11 +16,12 @@ add_library(dotscale_core STATIC
 	src/image_io/ImageWriter.h
 	src/image_io/ImageWriter.cpp
 
+	src/image_io/JpegIO.h
+	src/image_io/JpegIO.cpp
 	src/image_io/JpegReader.h
 	src/image_io/JpegReader.cpp
-	
-
-)
+	src/image_io/JpegWriter.h
+	src/image_io/JpegWriter.cpp)
 
 target_compile_features(dotscale_core PUBLIC cxx_std_23)
 

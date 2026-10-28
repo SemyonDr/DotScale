@@ -1,42 +1,17 @@
 #pragma once
 
 #include <optional>
-#include <array>
 #include <cstdint>
 #include "jpeglib.h"
 
+#include "../../image_io/JpegIO.h"
 
 namespace dotscale {
-
 
 /// JPEG image file header in libjpeg terms.
 class JpegHeader {
 
 public:
-
-	//--------------------------------
-	//	DEFINITIONS
-	//--------------------------------
-
-	// JPEG quantization tables
-	using QuantTable = std::array<uint16_t, 64>;
-	using QuantTables = std::array<std::optional<QuantTable>, 4>;
-	
-	// Chroma sampling factors
-	struct SamplingFactors {
-		int horizontal;
-		int vertical;
-	};
-	using ComponentSampling =
-		std::array<SamplingFactors, 4>;
-
-	// Pixel per length density, defining physical size.
-	// uint 0 - not set, 1 - DPI, 2 - dots per cm
-	struct JfifDensity {
-		uint8_t unit;
-		uint16_t x_density;
-		uint16_t y_density;
-	};
 
 	//--------------------------------
 	//	PUBLIC ACCESSORS
@@ -48,13 +23,19 @@ public:
 
 	J_COLOR_SPACE get_colorspace() const noexcept { return _color_space; }
 
-	int get_num_cmp() const { return jpeg_util::jpeg_colorspace_num_cmp(_color_space); }
+	int get_num_cmp() const { return io_jpeg::jpeg_colorspace_num_cmp(_color_space); }
 
-	QuantTables get_quant_tables() const noexcept { return _quant_tables; }
+	bool has_quantization() const noexcept { return _quantization.has_value(); }
 
-	ComponentSampling get_cmp_sampling() const noexcept { return _cmp_sampling; }
+	std::optional<io_jpeg::Quantization> get_quantization() const noexcept { return _quantization; }
 
-	std::optional<JfifDensity> get_jfif_density() const noexcept { return _jfif_density; }
+	bool has_sampling() const noexcept { return _cmp_sampling.has_value(); }
+
+	std::optional<io_jpeg::ComponentSampling> get_cmp_sampling() const noexcept { return _cmp_sampling; }
+
+	bool has_jfif_density() const noexcept { return _jfif_density.has_value(); }
+
+	std::optional<io_jpeg::JfifDensity> get_jfif_density() const noexcept { return _jfif_density; }
 
 	//--------------------------------
 	//	CONSTRUCTORS
@@ -65,14 +46,14 @@ public:
 		uint32_t width, 
 		J_COLOR_SPACE color_space, 
 		bool progressive, 
-		QuantTables quant_tables, 
-		ComponentSampling component_sampling,
-		std::optional<JfifDensity> jfif_density = std::nullopt)
+		std::optional<io_jpeg::ComponentSampling> component_sampling = std::nullopt,
+		std::optional<io_jpeg::Quantization> quantization = std::nullopt,
+		std::optional<io_jpeg::JfifDensity> jfif_density = std::nullopt)
 			: _height(height), 
 			_width(width), 
 			_color_space(color_space), 
 			_progressive(progressive), 
-			_quant_tables(std::move(quant_tables)), 
+			_quantization(std::move(quantization)),
 			_cmp_sampling(std::move(component_sampling)),
 			_jfif_density(jfif_density)
 	{ }
@@ -88,9 +69,9 @@ private:
 	J_COLOR_SPACE _color_space;
 
 	bool _progressive;
-	QuantTables _quant_tables;
-	ComponentSampling _cmp_sampling;
-	std::optional<JfifDensity> _jfif_density;
+	std::optional<io_jpeg::Quantization> _quantization;
+	std::optional<io_jpeg::ComponentSampling> _cmp_sampling;
+	std::optional<io_jpeg::JfifDensity> _jfif_density;
 };
 
 } // namespace dotscale
